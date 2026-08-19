@@ -1,3 +1,14 @@
 @import 'tailwindcss';
 @import '@acity/shared/theme.css';
 @import 'shadcn/tailwind.css';
+
+/*
+ * MF1/MF2's own compiled CSS doesn't reliably reach this page when their
+ * components are federated in (see docs/adr/002 — the plugin's CSS bundling
+ * for remotes wasn't working in dev mode). Scanning their source here makes
+ * the Shell's own Tailwind build a strict superset of every utility class any
+ * federated remote might use, so styling stays correct regardless of whether
+ * the remote's own CSS ever loads.
+ */
+@source '../../mf1-detail/src';
+@source '../../mf2-history/src';

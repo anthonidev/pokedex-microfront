@@ -28,6 +28,7 @@ export default defineConfig({
         },
       },
       shared: ['react', 'react-dom'],
+      bundleAllCSS: true,
     }),
   ],
   server: {

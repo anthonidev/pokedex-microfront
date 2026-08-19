@@ -51,11 +51,13 @@ Dimensionado para el límite de **2 días calendario**. Cada fase tiene un check
 
 ### Fase 4 — MF2: Historial
 
-- [ ] App standalone funcional en :3002 sin depender del Shell corriendo.
-- [ ] Lee la lista de visitados desde `localStorage` al montar.
-- [ ] UI: imagen, nombre, contador de visitas por Pokémon.
-- [ ] Se suscribe a `pokemon-visited` para reflejar visitas nuevas en vivo (sin recargar) si el usuario tiene el historial abierto en otra pestaña/vista.
-- [ ] Wireado como remote consumido por el Shell en la ruta `/history`.
+- [x] App standalone funcional en :3002 sin depender del Shell corriendo — verificado (estado vacío correcto; localStorage es por origen, así que standalone en :3002 nunca comparte historial con :3000/:3001, solo al federarse).
+- [x] Lee `getHistory()` de `packages/shared` al montar, ordenado por más reciente primero.
+- [x] UI: imagen, nombre, contador de visitas ("1 visita" / "N visitas") — mismo lenguaje visual que MF1 (tokens de `packages/shared/theme.css`).
+- [x] Se suscribe a `pokemon-visited` (`subscribeToVisits`) y re-lee el historial completo en cada visita — sin duplicar la lógica de merge/dedupe que ya hace `registerVisit`.
+- [x] Wireado como remote consumido por el Shell en la ruta `/history` — verificado con Playwright: visita en `/pokemon/charizard` (Shell+MF1) aparece reflejada en `/history` (Shell+MF2), confirmando que comparten `localStorage` al ejecutar dentro del mismo origen del Shell.
+
+**Bug encontrado y corregido en esta fase:** el CSS propio de MF1/MF2 no llegaba al Shell al federarse — clases como `size-12`/`size-48` no tenían regla CSS en la página (se veían a tamaño natural de imagen). Se detectó inspeccionando estilos computados con Playwright, no por la captura de pantalla (que "se veía bien" por coincidencia de nombres de clase con el Shell). Fix: `@source` de Tailwind v4 en `apps/shell/src/index.css` apuntando al código fuente de MF1/MF2, para que el build del Shell genere el superset completo de clases. Detalle completo en `docs/adr/002`.
 
 ### Fase 5 — Toast al recargar
 

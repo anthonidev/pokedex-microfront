@@ -25,6 +25,23 @@ Usar **`@module-federation/vite`** para implementar Module Federation sobre Vite
 - **Iframes o Web Components como aislamiento de MFs**: más simple de razonar, pero no es "Module Federation" — incumple un requisito explícito y obligatorio del README.
 - **Monolito con lazy-loaded routes (sin federation real)**: técnicamente más rápido de construir, pero no demuestra la competencia específica que el reto pide evaluar (30% del puntaje es "arquitectura / uso correcto de microfrontends").
 
+## Bug real encontrado y corregido: CSS de los remotes no llegaba al Shell
+
+> **Actualización (implementación, Fase 4):** al verificar visualmente el historial (MF2) con Playwright, las imágenes se veían a tamaño natural (~360px) en vez del tamaño fijado por Tailwind (`size-12` → 3rem). Investigando: `document.styleSheets` en el Shell solo mostraba las hojas de estilo del propio Shell — el CSS compilado de MF1/MF2 **nunca se estaba inyectando** al federarse. Lo que parecía "andar bien" en capturas anteriores (bordes, `bg-card`, `rounded-lg`, etc.) era pura coincidencia: el Shell define esas mismas clases de Tailwind en su propio bundle (por compartir tokens vía `packages/shared/theme.css`), así que cualquier clase que **no** coincidiera por nombre exacto con algo ya usado en el Shell (como `size-12`, `size-48`, específicos de MF1/MF2) simplemente no tenía regla CSS en la página.
+>
+> **Causa:** `@module-federation/vite` tiene la opción `bundleAllCSS` (default `false`) que en teoría resuelve justo esto — se probó `bundleAllCSS: true` tanto en los remotes como en el host, con limpieza total de caché (`node_modules/.vite`, `.mf`) entre cada intento, y **no tuvo efecto en modo `vite dev`** (sí podría funcionar en un build de producción, pero no se depende de eso — ver fix).
+>
+> **Fix aplicado:** en vez de depender de que Module Federation propague el CSS del remote, se usa el directive `@source` de Tailwind v4 (pensado para monorepos) en `apps/shell/src/index.css`:
+> ```css
+> @source '../../mf1-detail/src';
+> @source '../../mf2-history/src';
+> ```
+> Esto hace que el build de Tailwind del **Shell** escanee también el código fuente de MF1 y MF2, generando un superset de todas las clases que cualquier remote podría usar — sin importar si el CSS del remote llega o no al documento. Es más robusto que depender del comportamiento de un plugin de terceros en modo dev, y funciona igual en dev y en build. Se dejó `bundleAllCSS: true` en las 3 apps como defensa adicional (no molesta, y podría ayudar en producción), pero el fix real es el `@source`.
+>
+> Verificado con Playwright inspeccionando estilos computados (no solo la captura de pantalla): `getComputedStyle(img).width` pasó de `362px` (tamaño natural de la imagen, sin CSS aplicado) a `192px` (`size-48` = 12rem) como se esperaba.
+>
+> **Lección:** verificar estilos federados por *inspección de estilos computados*, no por si la captura de pantalla "se ve bien" — clases con nombres coincidentes entre apps (`bg-card`, `border-border`, etc., ya usadas en el Shell por compartir tokens) pueden ocultar por completo este tipo de bug.
+
 ## Consecuencias
 
 - `react`/`react-dom` deben coincidir en versión exacta entre las 3 apps (se fija en `packages/shared` como dependencia compartida a nivel de workspace) para que `singleton: true` no falle en runtime.

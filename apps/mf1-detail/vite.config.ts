@@ -14,6 +14,10 @@ export default defineConfig({
         './PokemonDetail': './src/PokemonDetail.tsx',
       },
       shared: ['react', 'react-dom'],
+      // Without this, this app's compiled CSS never reaches the host — any styling
+      // that "worked" was Shell's own Tailwind build coincidentally generating an
+      // identically-named utility class. See docs/adr/002.
+      bundleAllCSS: true,
     }),
   ],
   server: {
