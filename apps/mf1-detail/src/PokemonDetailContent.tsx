@@ -72,10 +72,22 @@ export default function PokemonDetailContent({ name, onNavigate }: PokemonDetail
   }, [name, pokemon]);
 
   if (isPending) {
+    // Mirrors the real layout's shape (hero + info grid) so there's no jarring jump in size
+    // once the data lands — a plain centered circle here would no longer match the wide
+    // desktop layout at all (see docs/adr/019).
     return (
-      <div className="mx-auto flex max-w-md animate-pulse flex-col items-center gap-4 p-6">
-        <div className="size-40 rounded-full bg-muted" />
-        <div className="h-6 w-32 rounded bg-muted" />
+      <div className="mx-auto flex w-full max-w-5xl animate-pulse flex-col">
+        <div className="flex flex-col items-center gap-3 rounded-b-[2.5rem] bg-muted px-6 pt-6 pb-24 lg:rounded-[2rem] lg:pb-40">
+          <div className="h-9 w-full" />
+          <div className="h-8 w-40 rounded bg-muted-foreground/15 lg:h-11 lg:w-56" />
+          <div className="h-5 w-24 rounded-full bg-muted-foreground/15" />
+        </div>
+        <div className="relative z-10 mx-auto -mt-24 size-40 rounded-full bg-muted-foreground/15 lg:-mt-40 lg:size-64" />
+        <div className="mt-4 grid gap-4 px-6 pb-6 lg:grid-cols-3 lg:px-0">
+          <div className="h-40 rounded-2xl bg-muted lg:col-span-2" />
+          <div className="h-40 rounded-2xl bg-muted lg:col-span-1" />
+          <div className="h-20 rounded-2xl bg-muted lg:col-span-3" />
+        </div>
       </div>
     );
   }
