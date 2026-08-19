@@ -1,9 +1,8 @@
-import { Component, Suspense, lazy, useState, type ComponentType, type ReactNode } from 'react';
+import { Component, useEffect, useState, type ComponentType, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 
 interface ErrorBoundaryProps {
   label: string;
-  onRetry: () => void;
   children: React.ReactNode;
 }
 
@@ -23,12 +22,12 @@ class RemoteErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 
   retry = () => {
-    // Resetting `hasError` alone isn't enough — React.lazy() caches the rejected
-    // import() promise on the lazy component reference forever, so it would just
-    // throw the same cached rejection again. `onRetry` (bumping a key in the parent)
-    // forces a *new* lazy() call, which actually re-attempts the dynamic import.
-    this.props.onRetry();
-    this.setState({ hasError: false });
+    // A plain in-memory retry (reset `hasError`, re-run the loader) isn't reliable here —
+    // @module-federation/vite's runtime caches a failed remoteEntry.js load at the session
+    // level and won't re-attempt the network request just because React asks again
+    // (verified: the remote coming back up mid-session, then clicking retry, still failed;
+    // only a full reload picked it up). A real reload is the one thing guaranteed to work.
+    window.location.reload();
   };
 
   render() {
@@ -64,15 +63,47 @@ interface RemoteBoundaryProps<P extends object> {
 function RemoteComponent<P extends object>({
   loader,
   componentProps,
+  fallback,
 }: {
   loader: () => Promise<{ default: ComponentType<P> }>;
   componentProps: P;
+  fallback: ReactNode;
 }) {
-  // Lazy initializer form: runs exactly once, on this instance's first render — not on
-  // every render, so it's not "creating a component during render" in the way a plain
-  // `useMemo(() => lazy(loader), [...])` would be flagged for. A fresh *instance* of
-  // this component (forced by the `key` change below) is what produces a fresh lazy().
-  const [Remote] = useState(() => lazy(loader));
+  // Not React.lazy()/Suspense: in production, once Shell and the remote are on separate
+  // origins, the federation runtime's own module cache resolves `import(...)` correctly
+  // (verified directly — `__mf_module_cache__.remote[...]` holds the real component), but
+  // React's lazy()/Suspense pair never notices that resolution and stays suspended forever
+  // — no error, just a permanently pending fallback. Driving the same promise through a
+  // plain effect sidesteps whatever timing mismatch causes that; only reproduces cross-origin
+  // (prod/Vercel), not in local dev where Shell and the remotes share one Vite server.
+  const [Remote, setRemote] = useState<ComponentType<P> | null>(null);
+  // `loader()` rejecting (remote down, network failure) isn't catchable by
+  // RemoteErrorBoundary directly — error boundaries only catch synchronous render errors,
+  // not promise rejections from an effect. Stashing it and re-throwing during render is the
+  // standard way to hand an async error off to the nearest error boundary.
+  const [error, setError] = useState<unknown>(null);
+  if (error) throw error;
+
+  useEffect(() => {
+    let cancelled = false;
+    loader()
+      .then((mod) => {
+        if (!cancelled) setRemote(() => mod.default);
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) setError(err);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // Deliberately not depending on `loader` — callers (e.g. PokemonDetailPage) pass a new
+    // inline function every render, and re-running this on every unrelated parent re-render
+    // would flash back to the fallback each time. Should run exactly once per mount; "retry"
+    // is a full page reload (see RemoteErrorBoundary.retry), not a re-run of this effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (!Remote) return <>{fallback}</>;
   return <Remote {...componentProps} />;
 }
 
@@ -82,15 +113,9 @@ export default function RemoteBoundary<P extends object>({
   componentProps,
   fallback = <div className="p-6 text-sm text-muted-foreground">Cargando {label}…</div>,
 }: RemoteBoundaryProps<P>) {
-  const [retryKey, setRetryKey] = useState(0);
-
   return (
-    <RemoteErrorBoundary label={label} onRetry={() => setRetryKey((key) => key + 1)}>
-      <Suspense fallback={fallback}>
-        {/* Changing `key` unmounts/remounts RemoteComponent, so its useState lazy
-            initializer runs again — that's what actually retries the import(). */}
-        <RemoteComponent key={retryKey} loader={loader} componentProps={componentProps} />
-      </Suspense>
+    <RemoteErrorBoundary label={label}>
+      <RemoteComponent loader={loader} componentProps={componentProps} fallback={fallback} />
     </RemoteErrorBoundary>
   );
 }

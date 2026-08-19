@@ -168,3 +168,7 @@ Cada `vercel.json` (uno por app) ya deja resuelto lo no obvio:
 - `apps/mf1-detail/vercel.json` y `apps/mf2-history/vercel.json`: header `Access-Control-Allow-Origin: *` — sin esto, el Shell (otro origen) no puede cargar el `remoteEntry.js` vía Module Federation.
 
 Si en algún momento se agrega un dominio propio, conviene reemplazar el `*` por el dominio real del Shell en vez de dejarlo abierto a cualquier origen.
+
+### Nota: por qué `RemoteBoundary` no usa `React.lazy`/`Suspense`
+
+Con Shell y los remotes en orígenes distintos (como en este deploy), `React.lazy()` + `<Suspense>` se quedaban esperando para siempre sin ningún error, aunque el módulo remoto se resolvía perfecto a nivel de Module Federation — invisible en `pnpm dev` porque ahí todo comparte un solo servidor Vite. `apps/shell/src/RemoteBoundary.tsx` usa un `useEffect` manual en su lugar. Diagnóstico completo en [`docs/adr/002`](./docs/adr/002-module-federation-vite.md).
