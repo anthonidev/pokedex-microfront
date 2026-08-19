@@ -5,12 +5,12 @@ import {
   Route,
   RouterProvider,
 } from 'react-router-dom';
-import RemoteBoundary from './RemoteBoundary';
 import AppLayout from './layout/AppLayout';
 import ProtectedRoute from './routes/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
 import PokemonDetailPage from './pages/PokemonDetailPage';
+import HistoryPage from './pages/HistoryPage';
 
 // `createBrowserRouter` (the "data router") instead of the classic `<BrowserRouter>` — the
 // latter doesn't wire navigation through `document.startViewTransition` at all (see
@@ -26,16 +26,7 @@ const router = createBrowserRouter(
         <Route element={<AppLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/pokemon/:name" element={<PokemonDetailPage />} />
-          <Route
-            path="/history"
-            element={
-              <RemoteBoundary
-                label="mf2History/History"
-                loader={() => import('mf2History/History')}
-                componentProps={{}}
-              />
-            }
-          />
+          <Route path="/history" element={<HistoryPage />} />
         </Route>
       </Route>
 

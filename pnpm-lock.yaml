@@ -72,6 +72,9 @@ importers:
       '@acity/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      lucide-react:
+        specifier: ^1.32.0
+        version: 1.32.0(react@19.2.8)
       react:
         specifier: ^19.2.8
         version: 19.2.8

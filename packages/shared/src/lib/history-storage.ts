@@ -60,6 +60,25 @@ export function registerVisit(pokemon: { name: string; image: string }): History
   return entry;
 }
 
+/** Removes one entry. Also clears the "last visited" pointer if it was that same entry, so a
+ * reload doesn't toast about a Pokémon that's no longer in history. */
+export function removeHistoryEntry(name: string): HistoryEntry[] {
+  const history = getHistory().filter((entry) => entry.name !== name);
+  writeJson(HISTORY_KEY, history);
+  if (getLastVisited()?.name === name) {
+    localStorage.removeItem(LAST_VISITED_KEY);
+  }
+  return history;
+}
+
+/** Clears the whole history, plus the "last visited" pointer and any dismissed-toast flag —
+ * nothing left to toast about after a full clear. */
+export function clearHistory(): void {
+  localStorage.removeItem(HISTORY_KEY);
+  localStorage.removeItem(LAST_VISITED_KEY);
+  localStorage.removeItem(TOAST_DISMISSED_FOR_KEY);
+}
+
 export function subscribeToVisits(callback: (entry: HistoryEntry) => void): () => void {
   const listener = (event: Event) => {
     callback((event as PokemonVisitedEvent).detail.entry);

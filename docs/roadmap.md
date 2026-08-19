@@ -108,6 +108,10 @@ Verificado con Playwright en las 3 apps (standalone y federado), light/dark, sin
 - [x] **Estadísticas como radar hexagonal**: reemplazadas las barras horizontales por el clásico gráfico de polígono de 6 ejes (PS/Ataque/Defensa/Velocidad/Def. Esp./At. Esp.), SVG hecho a mano (sin librería de charts, conversado con el usuario primero) coloreado con el tipo primario del Pokémon. Ver `docs/adr/020`.
 - [x] **Faltaba el skeleton en la fase de carga del remote**: el skeleton nuevo (entrada anterior) solo cubría la espera de datos de PokeAPI *una vez* que el bundle de MF1 ya había cargado — mientras Module Federation todavía está bajando ese bundle, `RemoteBoundary` mostraba un simple texto ("Cargando mf1Detail/..."). Se movió el skeleton a `packages/shared` (`PokemonDetailSkeleton`) y se usa en ambas fases: como `fallback` de `RemoteBoundary` (Shell, mientras el bundle de MF1 descarga) y dentro de `PokemonDetailContent` (MF1, mientras espera la respuesta de PokeAPI) — mismo componente, sin costura visible entre una fase y la otra. `RemoteBoundary` ahora acepta un `fallback` opcional por ruta (default: el texto genérico, que MF2/Historial sigue usando).
 
+### Historial: rediseño + acciones (post retomada del Detalle)
+
+- [x] **UI alineada al resto de la app + acciones nuevas**: la lista angosta de una columna pasó a una grilla de cards a todo el ancho (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`), mismo lenguaje visual que Home/Detalle. Se agregó: borrar un registro individual (sin confirmación, bajo riesgo), vaciar todo el historial (confirmación inline "¿Vaciar todo? Sí/Cancelar" en vez de un modal — evita sumar una dependencia de diálogo a MF2 solo para esto), y un botón para ir al detalle de cada Pokémon (`onViewDetail` opcional desde el Shell, mismo patrón router-free que MF1 — ver ADR 003). Nuevas `removeHistoryEntry`/`clearHistory` en `packages/shared`. Ver `docs/adr/021`.
+
 ### Fase 6 — Polish
 
 - [ ] Responsive (mobile/tablet/desktop) en las 3 apps.
