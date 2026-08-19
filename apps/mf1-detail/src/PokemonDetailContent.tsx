@@ -12,6 +12,7 @@ import {
   registerVisit,
   NotFoundState,
 } from '@acity/shared';
+import StatRadar from './StatRadar';
 
 interface PokemonDetailContentProps {
   name: string;
@@ -187,22 +188,7 @@ export default function PokemonDetailContent({ name, onNavigate }: PokemonDetail
 
           <div className={`${tab === 'stats' ? 'flex' : 'hidden'} flex-col gap-2 lg:col-span-1 lg:flex`}>
             <Section title="Estadísticas">
-              {pokemon.stats.map((stat) => (
-                <div key={stat.stat.name} className="flex items-center gap-3">
-                  <span className="w-28 shrink-0 text-xs font-medium text-muted-foreground capitalize">
-                    {stat.stat.name.replace('-', ' ')}
-                  </span>
-                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-                    <div
-                      className="h-full rounded-full bg-primary"
-                      style={{ width: `${Math.min(100, (stat.base_stat / 255) * 100)}%` }}
-                    />
-                  </div>
-                  <span className="w-8 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
-                    {stat.base_stat}
-                  </span>
-                </div>
-              ))}
+              <StatRadar stats={pokemon.stats} primaryType={primaryType} />
             </Section>
           </div>
 
