@@ -1,6 +1,7 @@
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { PokemonDetailSkeleton } from '@acity/shared';
 import RemoteBoundary from '@/RemoteBoundary';
+import { useDocumentTitle } from '@/hooks/use-document-title';
 
 /**
  * Reads the route param here (in the Shell) and passes it down as a plain prop
@@ -12,6 +13,9 @@ import RemoteBoundary from '@/RemoteBoundary';
 export default function PokemonDetailPage() {
   const { name } = useParams<{ name: string }>();
   const navigate = useNavigate();
+  // Route param only (e.g. "pikachu" -> "Pikachu") — the real display name lives inside
+  // MF1's own data fetch, not available here in the Shell.
+  useDocumentTitle(name && name.charAt(0).toUpperCase() + name.slice(1));
 
   if (!name) {
     return <Navigate to="/" replace />;

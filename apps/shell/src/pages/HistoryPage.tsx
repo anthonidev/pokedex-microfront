@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import RemoteBoundary from '@/RemoteBoundary';
+import { useDocumentTitle } from '@/hooks/use-document-title';
 
 /**
  * Mirrors History's real grid layout (see docs/adr/021) so there's no jump in shape once MF2's
@@ -33,6 +34,7 @@ function HistorySkeleton() {
  */
 export default function HistoryPage() {
   const navigate = useNavigate();
+  useDocumentTitle('Historial');
 
   return (
     <RemoteBoundary

@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuthStore } from '@/store/auth-store';
+import { useDocumentTitle } from '@/hooks/use-document-title';
 
 const DEMO_EMAIL = 'demo@acity.dev';
 const DEMO_PASSWORD = 'demo1234';
@@ -31,6 +32,7 @@ export default function LoginPage() {
   const location = useLocation();
 
   const [showPassword, setShowPassword] = useState(false);
+  useDocumentTitle('Iniciar sesión');
 
   const {
     register,
