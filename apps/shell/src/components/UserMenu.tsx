@@ -1,5 +1,6 @@
 import { LogOut, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -47,6 +48,11 @@ export default function UserMenu({ iconOnly = false }: UserMenuProps) {
         <DropdownMenuItem
           variant="destructive"
           onSelect={() => {
+            // Sonner's toast state lives outside AppLayout (the Toaster sits at the app
+            // root so it survives route changes) — VisitToastListener unmounting on logout
+            // doesn't dismiss whatever it already showed, so the "último visitado" toast
+            // was still sitting there on the login screen after signing out.
+            toast.dismiss();
             logout();
             navigate('/login', { replace: true });
           }}

@@ -3,7 +3,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Eye, EyeOff, Loader2, Lock, Mail, Sparkles } from 'lucide-react';
+import { Eye, EyeOff, ExternalLink, Loader2, Lock, Mail, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,10 @@ import { useAuthStore } from '@/store/auth-store';
 
 const DEMO_EMAIL = 'demo@acity.dev';
 const DEMO_PASSWORD = 'demo1234';
+
+const AUTHOR_NAME = 'Anthoni Portocarrero Rodriguez';
+const AUTHOR_EMAIL = 'softwaretoni21@gmail.com';
+const REPO_URL = 'https://github.com/anthonidev/pokedex-microfront';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Ingresá tu email').email('Ese email no parece válido'),
@@ -64,80 +68,106 @@ export default function LoginPage() {
         className="pointer-events-none absolute top-1/2 left-1/2 size-[32rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl"
       />
 
-      <Card className="relative w-full max-w-sm animate-in fade-in-0 slide-in-from-bottom-4 duration-300">
-        <CardHeader className="items-center text-center">
-          <div className="mb-1 flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
-            <Sparkles className="size-6" />
-          </div>
-          <CardTitle className="text-xl">Atlantic City · Pokédex</CardTitle>
-          <CardDescription>Iniciá sesión para continuar</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  className="pl-8"
-                  aria-invalid={!!errors.email}
-                  {...register('email')}
-                />
+      <div className="relative flex w-full max-w-md flex-col items-center gap-5">
+        <Card className="w-full animate-in fade-in-0 slide-in-from-bottom-4 gap-6 py-8 duration-300">
+          <CardHeader className="items-center gap-2 text-center">
+            <div className="mb-1 flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <Sparkles className="size-7" />
+            </div>
+            <CardTitle className="text-2xl">Atlantic City · Pokédex</CardTitle>
+            <CardDescription className="text-sm">Iniciá sesión para continuar</CardDescription>
+          </CardHeader>
+          <CardContent className="px-8">
+            <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)} noValidate>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <Mail className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    className="pl-8"
+                    aria-invalid={!!errors.email}
+                    {...register('email')}
+                  />
+                </div>
+                {errors.email && (
+                  <p role="alert" className="text-xs text-destructive">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
-              {errors.email && (
-                <p role="alert" className="text-xs text-destructive">
-                  {errors.email.message}
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="password">Contraseña</Label>
+                <div className="relative">
+                  <Lock className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    className="px-8"
+                    aria-invalid={!!errors.password}
+                    {...register('password')}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((value) => !value)}
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    className="absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p role="alert" className="text-xs text-destructive">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              {errors.root && (
+                <p role="alert" className="text-sm text-destructive">
+                  {errors.root.message}
                 </p>
               )}
-            </div>
 
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="password">Contraseña</Label>
-              <div className="relative">
-                <Lock className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  className="px-8"
-                  aria-invalid={!!errors.password}
-                  {...register('password')}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((value) => !value)}
-                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                  className="absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                </button>
-              </div>
-              {errors.password && (
-                <p role="alert" className="text-xs text-destructive">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-
-            {errors.root && (
-              <p role="alert" className="text-sm text-destructive">
-                {errors.root.message}
+              <Button type="submit" className="mt-2" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+                {isSubmitting ? 'Ingresando…' : 'Ingresar'}
+              </Button>
+              <p className="text-center text-xs text-muted-foreground">
+                Demo precargada: {DEMO_EMAIL} / {DEMO_PASSWORD}
               </p>
-            )}
+            </form>
+          </CardContent>
+        </Card>
 
-            <Button type="submit" className="mt-2" disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="size-4 animate-spin" />}
-              {isSubmitting ? 'Ingresando…' : 'Ingresar'}
-            </Button>
-            <p className="text-center text-xs text-muted-foreground">
-              Demo precargada: {DEMO_EMAIL} / {DEMO_PASSWORD}
-            </p>
-          </form>
-        </CardContent>
-      </Card>
+        <div className="flex flex-col items-center gap-1.5 text-center text-xs text-muted-foreground">
+          <p>
+            Reto técnico Frontend Senior — <span className="text-foreground">{AUTHOR_NAME}</span>
+          </p>
+          <div className="flex items-center gap-4">
+            <a
+              href={`mailto:${AUTHOR_EMAIL}`}
+              className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
+            >
+              <Mail className="size-3.5" />
+              {AUTHOR_EMAIL}
+            </a>
+            <a
+              href={REPO_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
+            >
+              <ExternalLink className="size-3.5" />
+              Repositorio
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
