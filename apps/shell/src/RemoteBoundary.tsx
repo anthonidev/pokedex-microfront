@@ -1,4 +1,4 @@
-import { Component, Suspense, lazy, useState, type ComponentType } from 'react';
+import { Component, Suspense, lazy, useState, type ComponentType, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 
 interface ErrorBoundaryProps {
@@ -53,6 +53,12 @@ interface RemoteBoundaryProps<P extends object> {
   label: string;
   loader: () => Promise<{ default: ComponentType<P> }>;
   componentProps: P;
+  /** Shown while the remote's own bundle is still downloading — a route can pass a skeleton
+   * that matches its real content's shape instead of the generic "Cargando…" text, so there's
+   * no visible seam between "remote loading" and "remote loaded, data loading" (which the
+   * remote renders itself once its code is in). Defaults to the plain text for routes that
+   * don't have one yet. */
+  fallback?: ReactNode;
 }
 
 function RemoteComponent<P extends object>({
@@ -74,14 +80,13 @@ export default function RemoteBoundary<P extends object>({
   label,
   loader,
   componentProps,
+  fallback = <div className="p-6 text-sm text-muted-foreground">Cargando {label}…</div>,
 }: RemoteBoundaryProps<P>) {
   const [retryKey, setRetryKey] = useState(0);
 
   return (
     <RemoteErrorBoundary label={label} onRetry={() => setRetryKey((key) => key + 1)}>
-      <Suspense
-        fallback={<div className="p-6 text-sm text-muted-foreground">Cargando {label}…</div>}
-      >
+      <Suspense fallback={fallback}>
         {/* Changing `key` unmounts/remounts RemoteComponent, so its useState lazy
             initializer runs again — that's what actually retries the import(). */}
         <RemoteComponent key={retryKey} loader={loader} componentProps={componentProps} />

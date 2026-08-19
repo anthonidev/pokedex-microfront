@@ -1,4 +1,5 @@
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { PokemonDetailSkeleton } from '@acity/shared';
 import RemoteBoundary from '@/RemoteBoundary';
 
 /**
@@ -21,6 +22,7 @@ export default function PokemonDetailPage() {
     <RemoteBoundary
       label="mf1Detail/PokemonDetail"
       loader={() => import('mf1Detail/PokemonDetail')}
+      fallback={<PokemonDetailSkeleton />}
       componentProps={{
         name,
         onNavigate: (nextName: string) =>
