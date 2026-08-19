@@ -25,7 +25,11 @@ export default function UserMenu({ iconOnly = false }: UserMenuProps) {
   if (!session) return null;
 
   return (
-    <DropdownMenu>
+    // modal={false}: Radix's default (modal) locks body scroll while open, which removes
+    // the scrollbar and reflows the page — jarring for a lightweight menu, especially
+    // triggered from the fixed mobile bottom nav. This is a small dropdown, not a modal
+    // takeover, so it doesn't need the scroll lock/focus trap that implies.
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button
           variant={iconOnly ? 'ghost' : 'outline'}

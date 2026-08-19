@@ -9,6 +9,11 @@ const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
+      // Sonner forces the toast container to full width below 600px, anchored to whichever
+      // edge `position` points at. Anchoring bottom (the default) makes that full-width strip
+      // sit right on top of the floating mobile bottom nav and swallow its clicks — anchoring
+      // top instead keeps the toast clear of it (and of thumb reach) on small screens.
+      position="top-center"
       className="toaster group"
       icons={{
         success: (
