@@ -65,6 +65,17 @@ Dimensionado para el límite de **2 días calendario**. Cada fase tiene un check
 - [x] Al montar (recarga de página): si hay `lastVisited` en `localStorage` y no fue "dismisseado" para esa visita → mostrar toast — verificado (Charizard, reaparece tras reload hasta que se cierra).
 - [x] Botón "Cerrar" → persiste el dismiss vía `dismissReloadToast()` y no reaparece tras recargar — verificado. Toast con `duration: Infinity` (solo desaparece por acción explícita del usuario, no por timeout, para que el dismiss-persistente tenga sentido con lo que pide el README).
 
+### Auditoría de código (post Fase 5)
+
+Antes de arrancar Polish, se hizo una auditoría del código de las Fases 0-5 (correctitud, reuso, arquitectura). Un sub-agente de revisión encontró 4 bugs reales, todos corregidos:
+
+- [x] **Conteo de visitas duplicado/perdido** (`PokemonDetailContent.tsx`) — el efecto de `registerVisit` dependía del objeto `pokemon` en vez de `name`, causando doble registro por el double-invoke de StrictMode en dev, y ningún registro al revisitar un Pokémon ya cacheado por TanStack Query. Fix: guard con `useRef` keyeado por `name`. Verificado con Playwright (visita nueva → `visits: 1`; revisita → `visits: 2`).
+- [x] **Remote caído rompía la sección para siempre** (`RemoteBoundary.tsx`) — `hasError` nunca se reseteaba y `React.lazy()` cachea la promesa rechazada para siempre. Fix: botón "Reintentar" + `RemoteBoundary` ahora recibe un `loader` y fuerza un `lazy()` nuevo vía remount (`key` + `useState` con inicializador perezoso). Verificado por revisión de código/tipos, no por inyección de fallo real en vivo (matar el server de dev tira abajo todo el grupo de procesos de Turborepo).
+- [x] **Requests de scroll infinito de más al tipear** (`use-infinite-scroll-trigger.ts`) — el `IntersectionObserver` se recreaba en cada render por un callback no memoizado. Fix: patrón "latest ref" (con la escritura del ref dentro de un `useEffect`, no durante el render, para no romper la regla `react/refs` del linter).
+- [x] **Buscador sin loading state inicial** (`SearchModal.tsx`) — la grilla quedaba vacía hasta que llegaban los primeros 30 resultados. Fix: skeleton mientras `listQuery.isPending`.
+
+Mejoras de reuso aplicadas: `NotFoundState` extraído a `packages/shared` (estaba duplicado entre Shell y MF1), accessor seguro `getPokemonTypeColor` (sin cast `as PokemonType`), y config de build de Vite extraída a `vite.shared.config.ts` (evita repetirla en los 3 `vite.config.ts`).
+
 ### Fase 6 — Polish
 
 - [ ] Responsive (mobile/tablet/desktop) en las 3 apps.

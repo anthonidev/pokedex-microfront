@@ -96,6 +96,13 @@ export const POKEMON_TYPE_COLORS: Record<PokemonType, string> = {
   fairy: '#EE99AC',
 };
 
+const FALLBACK_TYPE_COLOR = '#68A090';
+
+/** Safe accessor — PokeAPI could in principle return a type name outside our known list. */
+export function getPokemonTypeColor(typeName: string): string {
+  return (POKEMON_TYPE_COLORS as Record<string, string>)[typeName] ?? FALLBACK_TYPE_COLOR;
+}
+
 export interface Pokemon {
   id: number;
   name: string;

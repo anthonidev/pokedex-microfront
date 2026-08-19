@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useInfiniteQuery, useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
-import { getPokemonByName, getPokemonList, type Pokemon } from '@acity/shared';
+import { getPokemonByName, getPokemonList, NotFoundState, type Pokemon } from '@acity/shared';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
@@ -76,6 +76,18 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
         <div className="overflow-y-auto p-4">
           {isSearching ? (
             <ExactResult query={exactQuery} name={debouncedTerm} onSelect={goToPokemon} />
+          ) : listQuery.isPending ? (
+            <div className={GRID_CLASS}>
+              {Array.from({ length: PAGE_SIZE }, (_, index) => (
+                <div
+                  key={`search-skeleton-${index}`}
+                  className="flex w-full animate-pulse flex-col items-center gap-2 p-2"
+                >
+                  <div className="size-20 rounded-full bg-muted" />
+                  <div className="h-4 w-16 rounded bg-muted" />
+                </div>
+              ))}
+            </div>
           ) : (
             <>
               <div className={GRID_CLASS}>
@@ -121,14 +133,7 @@ function ExactResult({
   }
 
   if (query.isError) {
-    return (
-      <div className="flex flex-col items-center gap-2 py-16 text-center">
-        <p className="text-lg font-medium">No encontrado</p>
-        <p className="text-sm text-muted-foreground">
-          No existe un Pokémon con el nombre "{name}".
-        </p>
-      </div>
-    );
+    return <NotFoundState name={name} />;
   }
 
   const pokemon = query.data;

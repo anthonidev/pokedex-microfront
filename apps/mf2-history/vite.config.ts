@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { federation } from '@module-federation/vite';
+import { federationBuildConfig } from '../../vite.shared.config.ts';
 
 export default defineConfig({
   plugins: [
@@ -29,8 +30,5 @@ export default defineConfig({
     port: 3002,
     strictPort: true,
   },
-  build: {
-    target: 'esnext',
-    modulePreload: false,
-  },
+  build: federationBuildConfig,
 });

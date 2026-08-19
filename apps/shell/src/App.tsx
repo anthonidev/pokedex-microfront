@@ -1,4 +1,3 @@
-import { lazy } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import RemoteBoundary from './RemoteBoundary';
 import AppLayout from './layout/AppLayout';
@@ -6,8 +5,6 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
 import PokemonDetailPage from './pages/PokemonDetailPage';
-
-const History = lazy(() => import('mf2History/History'));
 
 function App() {
   return (
@@ -21,9 +18,11 @@ function App() {
           <Route
             path="/history"
             element={
-              <RemoteBoundary label="mf2History/History">
-                <History />
-              </RemoteBoundary>
+              <RemoteBoundary
+                label="mf2History/History"
+                loader={() => import('mf2History/History')}
+                componentProps={{}}
+              />
             }
           />
         </Route>

@@ -1,11 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   getPokemonArtwork,
   getPokemonByName,
+  getPokemonTypeColor,
   registerVisit,
-  POKEMON_TYPE_COLORS,
-  type PokemonType,
+  NotFoundState,
 } from '@acity/shared';
 
 interface PokemonDetailContentProps {
@@ -24,10 +24,19 @@ export default function PokemonDetailContent({ name }: PokemonDetailContentProps
     retry: false,
   });
 
+  // Keyed by name (not by the `pokemon` object reference) so a visit is registered exactly
+  // once per navigation: immune to StrictMode's dev double-invoke (same name on the second
+  // invoke → skipped) and still fires on a genuine revisit of an already-cached Pokémon,
+  // where TanStack Query would otherwise return the same `data` reference and never
+  // re-trigger a `[pokemon]`-keyed effect at all.
+  const registeredForRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (!pokemon) return;
+    if (registeredForRef.current === name) return;
+    registeredForRef.current = name;
     registerVisit({ name: pokemon.name, image: getPokemonArtwork(pokemon) });
-  }, [pokemon]);
+  }, [name, pokemon]);
 
   if (isPending) {
     return (
@@ -39,14 +48,7 @@ export default function PokemonDetailContent({ name }: PokemonDetailContentProps
   }
 
   if (isError) {
-    return (
-      <div className="flex flex-col items-center gap-2 p-12 text-center">
-        <p className="text-lg font-medium">No encontrado</p>
-        <p className="text-sm text-muted-foreground">
-          No existe un Pokémon con el nombre "{name}".
-        </p>
-      </div>
-    );
+    return <NotFoundState name={name} />;
   }
 
   const artwork = getPokemonArtwork(pokemon);
@@ -61,7 +63,7 @@ export default function PokemonDetailContent({ name }: PokemonDetailContentProps
           <span
             key={type.name}
             className="rounded-full px-3 py-1 text-xs font-semibold text-white capitalize"
-            style={{ backgroundColor: POKEMON_TYPE_COLORS[type.name as PokemonType] }}
+            style={{ backgroundColor: getPokemonTypeColor(type.name) }}
           >
             {type.name}
           </span>

@@ -1,8 +1,5 @@
-import { lazy } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import RemoteBoundary from '@/RemoteBoundary';
-
-const PokemonDetail = lazy(() => import('mf1Detail/PokemonDetail'));
 
 /**
  * Reads the route param here (in the Shell) and passes it down as a plain prop
@@ -18,8 +15,10 @@ export default function PokemonDetailPage() {
   }
 
   return (
-    <RemoteBoundary label="mf1Detail/PokemonDetail">
-      <PokemonDetail name={name} />
-    </RemoteBoundary>
+    <RemoteBoundary
+      label="mf1Detail/PokemonDetail"
+      loader={() => import('mf1Detail/PokemonDetail')}
+      componentProps={{ name }}
+    />
   );
 }
