@@ -1,0 +1,31 @@
+/**
+ * Shared Tailwind v4 theme tokens — imported by every app after `@import "tailwindcss";`
+ * (see docs/adr/004). Keeps the 3 federated bundles visually consistent without a
+ * shared React context.
+ */
+
+/* Dark mode driven by a class on <html> (see packages/shared/src/lib/theme.ts),
+   not by prefers-color-scheme — Tailwind v4 defaults to the media strategy, so we
+   opt into the class strategy explicitly. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand-50: oklch(0.97 0.02 250);
+  --color-brand-100: oklch(0.93 0.05 250);
+  --color-brand-300: oklch(0.8 0.12 250);
+  --color-brand-500: oklch(0.6 0.2 250);
+  --color-brand-600: oklch(0.52 0.2 250);
+  --color-brand-700: oklch(0.44 0.18 250);
+
+  --color-surface: oklch(1 0 0);
+  --color-surface-muted: oklch(0.97 0 0);
+  --color-ink: oklch(0.2 0 0);
+  --color-ink-muted: oklch(0.45 0 0);
+}
+
+:root.dark {
+  --color-surface: oklch(0.2 0 0);
+  --color-surface-muted: oklch(0.26 0 0);
+  --color-ink: oklch(0.96 0 0);
+  --color-ink-muted: oklch(0.7 0 0);
+}
