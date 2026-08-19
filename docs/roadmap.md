@@ -28,11 +28,11 @@ Dimensionado para el límite de **2 días calendario**. Cada fase tiene un check
 
 ### Fase 2 — Shell: buscador
 
-- [ ] Modal fullscreen (abre/cierra con animación, foco atrapado dentro).
-- [ ] Listado inicial: `GET /pokemon?limit=30&offset=0`.
-- [ ] Infinite scroll: `useInfiniteQuery`, `offset += 30` al llegar al final.
-- [ ] Búsqueda exacta: `GET /pokemon/{name}` — lowercase, sin trim/normalización de acentos (regla del README). Si 404 → estado "No encontrado".
-- [ ] Click en un resultado navega al detalle (MF1).
+- [x] Modal fullscreen (shadcn `Dialog` overrideado a `inset-0`/`h-screen`/`w-screen`, foco atrapado + `Escape` vía Radix).
+- [x] Listado inicial: `GET /pokemon?limit=30&offset=0`, mismas `PokemonCard` que Home (imagen derivada del id, sin fetch extra).
+- [x] Infinite scroll: `useInfiniteQuery` + `IntersectionObserver` propio (`useInfiniteScrollTrigger`), `offset += 30` al llegar al final — verificado cargando 3 páginas seguidas.
+- [x] Búsqueda exacta: `GET /pokemon/{name}` — lowercase, debounce de 500ms, sin trim/normalización de acentos (regla del README). 404 → estado "No encontrado" verificado.
+- [x] Click en un resultado cierra el modal y navega a `/pokemon/:name` (placeholder de MF1) — verificado con Playwright.
 
 ---
 

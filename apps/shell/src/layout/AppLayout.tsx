@@ -1,5 +1,9 @@
+import { useState } from 'react';
+import { Search } from 'lucide-react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import SearchModal from '@/components/SearchModal';
 import ThemeToggle from '@/components/ThemeToggle';
 import UserMenu from '@/components/UserMenu';
 
@@ -10,6 +14,8 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   );
 
 export default function AppLayout() {
+  const [searchOpen, setSearchOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur">
@@ -26,6 +32,14 @@ export default function AppLayout() {
             </nav>
           </div>
           <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Buscar Pokémon"
+              onClick={() => setSearchOpen(true)}
+            >
+              <Search className="size-4" />
+            </Button>
             <ThemeToggle />
             <UserMenu />
           </div>
@@ -34,6 +48,8 @@ export default function AppLayout() {
       <main className="mx-auto max-w-6xl px-4 py-6">
         <Outlet />
       </main>
+
+      <SearchModal open={searchOpen} onOpenChange={setSearchOpen} />
     </div>
   );
 }
