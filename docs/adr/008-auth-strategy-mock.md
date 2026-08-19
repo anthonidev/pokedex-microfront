@@ -8,7 +8,8 @@ El README pide "Login y sesión de usuario" pero no provee backend de autenticac
 
 Login **mock**, resuelto 100% client-side:
 
-- Un formulario que acepta credenciales fijas y documentadas en el README raíz (ej. cualquier email con formato válido + password no vacío, o un usuario/contraseña fijo tipo `demo`/`demo`) — la validación exacta se define en Fase 1 del roadmap y se deja explícita en el README de entrega para que el evaluador sepa cómo entrar.
+- Un formulario que acepta credenciales fijas (`demo@acity.dev` / `demo1234`, **precargadas por defecto** en el form) y documentadas en el README raíz para que el evaluador sepa cómo entrar sin buscar el dato.
+- Validación de formulario con **react-hook-form + zod** (`zodResolver`): valida formato (email válido, contraseña no vacía) en el cliente antes de intentar nada; el chequeo de "¿son las credenciales de la demo?" es una regla de negocio aparte, resuelta en el `onSubmit` con `setError('root', ...)` — no forma parte del schema de zod porque no es una regla de *formato*, es una regla de *autenticación*. Botón de mostrar/ocultar contraseña (ícono `Eye`/`EyeOff` de lucide) sobre el mismo `Input` de shadcn.
 - Al "loguear", se guarda una sesión simulada (`{ user, loggedInAt }`) en `localStorage`.
 - Rutas protegidas verifican esa sesión con el store `useAuthStore` (Zustand, [`adr/005`](./005-state-management-zustand.md)) y redirigen a `/login` si no existe.
 - Logout limpia `localStorage` y el store.
