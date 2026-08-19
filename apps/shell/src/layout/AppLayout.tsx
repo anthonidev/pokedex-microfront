@@ -1,9 +1,10 @@
 import { useCallback, useState } from 'react';
 import { Search } from 'lucide-react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PokeballIcon from '@/components/PokeballIcon';
 import SearchModal from '@/components/SearchModal';
 import ThemeToggle from '@/components/ThemeToggle';
 import UserMenu from '@/components/UserMenu';
@@ -28,14 +29,18 @@ export default function AppLayout() {
       <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur">
         <div className="flex w-full items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
-            <span className="font-heading text-lg font-bold tracking-tight">
+            <Link
+              to="/"
+              className="flex items-center gap-2 font-heading text-lg font-bold tracking-tight transition-opacity hover:opacity-80"
+            >
+              <PokeballIcon className="size-5 shrink-0" />
               <span className="sm:hidden">Pokédex</span>
               <span className="hidden sm:inline">Atlantic City · Pokédex</span>
-            </span>
+            </Link>
             {/* Home/Historial live in the floating bottom nav on mobile — too cramped here. */}
             <nav className="hidden items-center gap-1 sm:flex">
               <NavLink to="/" end className={navLinkClass}>
-                Home
+                Inicio
               </NavLink>
               <NavLink to="/history" className={navLinkClass}>
                 Historial

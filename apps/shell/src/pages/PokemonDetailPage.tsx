@@ -30,6 +30,7 @@ export default function PokemonDetailPage() {
         name,
         onNavigate: (nextName: string) =>
           navigate(`/pokemon/${nextName}`, { viewTransition: true }),
+        onGoHome: () => navigate('/', { viewTransition: true }),
       }}
     />
   );

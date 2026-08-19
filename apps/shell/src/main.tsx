@@ -9,7 +9,18 @@ import App from './App.tsx';
 // Applied before first paint (not in a useEffect) to avoid a light-mode flash on load.
 applyTheme(getStoredTheme());
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Every query here (Home's lists, the search modal, each grid card's own pokemon
+      // fetch) hits PokeAPI for data that never changes — no reason to ever treat a
+      // cached response as stale or evict it while the tab stays open. Same reasoning as
+      // MF1's own QueryClient (apps/mf1-detail/src/query-client.ts).
+      staleTime: Infinity,
+      gcTime: Infinity,
+    },
+  },
+});
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

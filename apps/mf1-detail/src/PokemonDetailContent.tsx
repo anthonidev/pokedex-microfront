@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   getFlavorText,
   getPokemonArtwork,
@@ -19,11 +19,16 @@ interface PokemonDetailContentProps {
   name: string;
   /** Shell owns routing (see docs/adr/003) — prev/next asks it to navigate, MF1 stays router-free. */
   onNavigate?: (name: string) => void;
+  onGoHome?: () => void;
 }
 
 type TabKey = 'info' | 'stats' | 'moves';
 
-export default function PokemonDetailContent({ name, onNavigate }: PokemonDetailContentProps) {
+export default function PokemonDetailContent({
+  name,
+  onNavigate,
+  onGoHome,
+}: PokemonDetailContentProps) {
   const [tab, setTab] = useState<TabKey>('info');
 
   const {
@@ -72,6 +77,24 @@ export default function PokemonDetailContent({ name, onNavigate }: PokemonDetail
     registerVisit({ name: pokemon.name, image: getPokemonArtwork(pokemon) });
   }, [name, pokemon]);
 
+  // Desktop convenience — mirrors the prev/next chevrons exactly (same bounds check, same
+  // callback). Ignored with a modifier held so it doesn't fight the browser's own
+  // back/forward gestures (Cmd/Alt/Ctrl+Arrow).
+  useEffect(() => {
+    if (!onNavigate || !pokemon) return;
+    const currentId = pokemon.id;
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.key === 'ArrowLeft' && currentId > 1) {
+        onNavigate?.(String(currentId - 1));
+      } else if (event.key === 'ArrowRight') {
+        onNavigate?.(String(currentId + 1));
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onNavigate, pokemon]);
+
   if (isPending) {
     return <PokemonDetailSkeleton />;
   }
@@ -93,19 +116,35 @@ export default function PokemonDetailContent({ name, onNavigate }: PokemonDetail
         className="relative flex flex-col items-center gap-3 rounded-b-[2.5rem] px-6 pt-6 pb-24 text-white lg:rounded-[2rem] lg:px-12 lg:pt-10 lg:pb-40"
         style={{ backgroundImage: getPokemonTypeGradient(primaryType) }}
       >
-        <div className="flex w-full items-center justify-between">
-          <NavButton
-            direction="prev"
-            disabled={!onNavigate || pokemon.id <= 1}
-            onClick={() => onNavigate?.(String(pokemon.id - 1))}
-          />
-          <span className="rounded-full bg-black/20 px-3 py-1 text-sm font-semibold tabular-nums backdrop-blur-sm">
+        {/* grid-cols-3 (not flex justify-between) so the #id badge stays perfectly centered
+            regardless of the "volver" button only existing in the left cell. */}
+        <div className="grid w-full grid-cols-3 items-center">
+          <div className="flex items-center gap-2 justify-self-start">
+            {onGoHome && (
+              <button
+                type="button"
+                onClick={onGoHome}
+                aria-label="Volver al inicio"
+                className="flex items-center gap-1.5 rounded-full bg-black/20 p-2 backdrop-blur-sm transition-colors hover:bg-black/30"
+              >
+                <ArrowLeft className="size-5" />
+                <span className="hidden pr-1 text-sm font-semibold sm:inline">Inicio</span>
+              </button>
+            )}
+            <NavButton
+              direction="prev"
+              disabled={!onNavigate || pokemon.id <= 1}
+              onClick={() => onNavigate?.(String(pokemon.id - 1))}
+            />
+          </div>
+          <span className="justify-self-center rounded-full bg-black/20 px-3 py-1 text-sm font-semibold tabular-nums backdrop-blur-sm">
             #{String(pokemon.id).padStart(3, '0')}
           </span>
           <NavButton
             direction="next"
             disabled={!onNavigate}
             onClick={() => onNavigate?.(String(pokemon.id + 1))}
+            className="justify-self-end"
           />
         </div>
 
@@ -226,10 +265,12 @@ function NavButton({
   direction,
   disabled,
   onClick,
+  className = '',
 }: {
   direction: 'prev' | 'next';
   disabled: boolean;
   onClick: () => void;
+  className?: string;
 }) {
   return (
     <button
@@ -237,7 +278,7 @@ function NavButton({
       disabled={disabled}
       onClick={onClick}
       aria-label={direction === 'prev' ? 'Pokémon anterior' : 'Pokémon siguiente'}
-      className="rounded-full bg-black/20 p-2 backdrop-blur-sm transition-opacity disabled:opacity-30"
+      className={`rounded-full bg-black/20 p-2 backdrop-blur-sm transition-opacity disabled:opacity-30 ${className}`}
     >
       {direction === 'prev' ? <ChevronLeft className="size-5" /> : <ChevronRight className="size-5" />}
     </button>

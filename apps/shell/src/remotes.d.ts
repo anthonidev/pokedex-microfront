@@ -1,6 +1,10 @@
 declare module 'mf1Detail/PokemonDetail' {
   import type { ComponentType } from 'react';
-  const PokemonDetail: ComponentType<{ name: string; onNavigate?: (name: string) => void }>;
+  const PokemonDetail: ComponentType<{
+    name: string;
+    onNavigate?: (name: string) => void;
+    onGoHome?: () => void;
+  }>;
   export default PokemonDetail;
 }
 

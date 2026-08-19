@@ -25,7 +25,7 @@ export default function MobileBottomNav({ onSearchClick }: MobileBottomNavProps)
       aria-label="Navegación principal"
       className="fixed bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1 rounded-full border border-border bg-card p-1.5 shadow-lg sm:hidden"
     >
-      <NavLink to="/" end className={navItemClass} aria-label="Home">
+      <NavLink to="/" end className={navItemClass} aria-label="Inicio">
         <House className="size-5" />
       </NavLink>
       <NavLink to="/history" className={navItemClass} aria-label="Historial">

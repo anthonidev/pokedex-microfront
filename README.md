@@ -13,7 +13,7 @@ Solución al reto técnico de Frontend Senior: una Pokédex construida como 3 ap
 ![pnpm](https://img.shields.io/badge/pnpm-F69220?style=flat&logo=pnpm&logoColor=white)
 ![Turborepo](https://img.shields.io/badge/Turborepo-EF4444?style=flat&logo=turborepo&logoColor=white)
 ![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=flat&logo=vitest&logoColor=white)
-[![Deploy](https://img.shields.io/badge/Demo-Vercel-000000?style=flat&logo=vercel&logoColor=white)](https://pokedex-microfront-mf1-detail-dk9l.vercel.app)
+[![Deploy](https://img.shields.io/badge/Demo-Vercel-000000?style=flat&logo=vercel&logoColor=white)](https://pokedex-shell.vercel.app)
 
 > El enunciado original del reto queda preservado en el historial de git y resumido en [`docs/00-overview.md`](./docs/00-overview.md).
 
@@ -163,10 +163,16 @@ Sin duplicados (se busca por `name` y se incrementa `visits` si ya existe), pers
 
 Las 3 apps son builds 100% estáticos de Vite (sin backend propio — el fetch a PokeAPI se hace desde el browser), así que **Vercel** alcanza sin necesidad de Docker ni de un servidor propio.
 
+| App           | URL                                                                      |
+| ------------- | ------------------------------------------------------------------------ |
+| `shell`       | [pokedex-shell.vercel.app](https://pokedex-shell.vercel.app)             |
+| `mf1-detail`  | [pokedex-mf1-detail.vercel.app](https://pokedex-mf1-detail.vercel.app)   |
+| `mf2-history` | [pokedex-mf2-history.vercel.app](https://pokedex-mf2-history.vercel.app) |
+
 Punto importante: Module Federation necesita la URL de cada remote **en build time** (`apps/shell/vite.config.ts`), no es algo que se resuelva en runtime. En dev usa `localhost:3001`/`3002` por default; en producción hay que pasarle las URLs reales por variable de entorno:
 
-- `VITE_MF1_ENTRY_URL` → `https://<tu-deploy-de-mf1-detail>.vercel.app/remoteEntry.js`
-- `VITE_MF2_ENTRY_URL` → `https://<tu-deploy-de-mf2-history>.vercel.app/remoteEntry.js`
+- `VITE_MF1_ENTRY_URL` → `https://pokedex-mf1-detail.vercel.app/remoteEntry.js`
+- `VITE_MF2_ENTRY_URL` → `https://pokedex-mf2-history.vercel.app/remoteEntry.js`
 
 ### Pasos en Vercel
 
@@ -175,11 +181,13 @@ Es un monorepo con 3 apps independientes → **3 proyectos de Vercel separados**
 1. **Deployá `mf1-detail` y `mf2-history` primero** (no dependen de nada más):
    - "Add New Project" → importá el repo → **Root Directory**: `apps/mf1-detail` (y otro proyecto con `apps/mf2-history`).
    - Framework preset: Vite (autodetectado). Build command / output quedan como están (`vite build` → `dist`).
-   - Guardá la URL que te da Vercel para cada uno (ej. `mf1-detail-xxx.vercel.app`).
+   - Guardá la URL que te da Vercel para cada uno.
 2. **Deployá `shell` al final**, ya con las URLs de los otros dos:
    - "Add New Project" → mismo repo → **Root Directory**: `apps/shell`.
    - En Environment Variables del proyecto: `VITE_MF1_ENTRY_URL` y `VITE_MF2_ENTRY_URL` con las URLs del paso 1 + `/remoteEntry.js`.
    - Deploy.
+
+Si renombrás un proyecto de Vercel (para tener una URL más prolija, por ejemplo) su dominio `*.vercel.app` cambia con el nombre — hay que actualizar las env vars del Shell con la URL nueva y volver a deployarlo (`Redeploy`, no alcanza con solo guardar la variable) para que el build vuelva a hornear la URL correcta.
 
 Cada `vercel.json` (uno por app) ya deja resuelto lo no obvio:
 

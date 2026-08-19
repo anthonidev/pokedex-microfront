@@ -48,14 +48,14 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
     retry: false,
   });
 
-  // Full name list, fetched once and cached forever — powers live typeahead suggestions
-  // (e.g. "pika" → Pikachu) so exact-match isn't a dead end while the user is still typing.
-  // This does NOT replace the exact-match requirement above; it's a UX layer on top of it.
+  // Full name list, fetched once and cached forever (the QueryClient's own default — see
+  // main.tsx) — powers live typeahead suggestions (e.g. "pika" → Pikachu) so exact-match
+  // isn't a dead end while the user is still typing. This does NOT replace the exact-match
+  // requirement above; it's a UX layer on top of it.
   const namesQuery = useQuery({
     queryKey: ['pokemon-all-names'],
     queryFn: getAllPokemonNames,
     enabled: open,
-    staleTime: Number.POSITIVE_INFINITY,
   });
 
   const suggestions = useMemo(() => {

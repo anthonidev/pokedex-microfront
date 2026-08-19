@@ -39,8 +39,8 @@ export default function PokemonGridCard({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -6, scale: 1.03 }}
-      whileTap={{ scale: 0.97 }}
+      whileHover={{ y: -3, scale: 1.015 }}
+      whileTap={{ scale: 0.98 }}
       transition={{ type: 'spring', stiffness: 350, damping: 28 }}
       className="aspect-[3/4] w-full"
     >
@@ -57,7 +57,7 @@ export default function PokemonGridCard({
 
         <div className="flex flex-1 items-center justify-center">
           {artwork && (
-            <img
+            <motion.img
               src={artwork}
               alt={pokemon.name}
               loading="lazy"
@@ -67,6 +67,10 @@ export default function PokemonGridCard({
               // needs a distinct name while they're all visible together.
               style={viewTransition ? { viewTransitionName: `pokemon-artwork-${pokemon.name}` } : undefined}
               className="size-24 object-contain drop-shadow-lg sm:size-28"
+              // A little "greeting wiggle" on top of the card's own hover lift — plays once per
+              // hover (a whileHover keyframe array holds at the last value, it doesn't loop).
+              whileHover={{ scale: 1.12, rotate: [0, -8, 8, -4, 0] }}
+              transition={{ duration: 0.5, ease: 'easeInOut' }}
             />
           )}
         </div>

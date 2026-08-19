@@ -12,3 +12,18 @@
  */
 @source '../../mf1-detail/src';
 @source '../../mf2-history/src';
+
+/*
+ * Circular "reveal" animation for the light/dark toggle (ThemeToggle.tsx) — same
+ * document.startViewTransition() the router already uses for navigation (docs/adr/018),
+ * driven manually here since a theme flip isn't a route change. By default the API
+ * cross-fades ::view-transition-old(root)/::view-transition-new(root); that's disabled
+ * here (scoped to the `.theme-transition` class, added only for the duration of this
+ * specific transition) so the only visible motion is the clip-path circle animated from
+ * JS, expanding from the button that was clicked.
+ */
+.theme-transition::view-transition-old(root),
+.theme-transition::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}

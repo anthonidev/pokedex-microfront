@@ -5,6 +5,7 @@ import PokemonDetailContent from './PokemonDetailContent';
 interface PokemonDetailProps {
   name: string;
   onNavigate?: (name: string) => void;
+  onGoHome?: () => void;
 }
 
 /**
@@ -13,10 +14,10 @@ interface PokemonDetailProps {
  * (this bundle has its own copy of @tanstack/react-query), so relying on the
  * Shell's provider would throw "No QueryClient set". See docs/adr/006.
  */
-export default function PokemonDetail({ name, onNavigate }: PokemonDetailProps) {
+export default function PokemonDetail({ name, onNavigate, onGoHome }: PokemonDetailProps) {
   return (
     <QueryClientProvider client={queryClient}>
-      <PokemonDetailContent name={name} onNavigate={onNavigate} />
+      <PokemonDetailContent name={name} onNavigate={onNavigate} onGoHome={onGoHome} />
     </QueryClientProvider>
   );
 }
