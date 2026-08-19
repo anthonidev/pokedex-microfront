@@ -57,7 +57,9 @@ export default function PokemonGridCard({ item, onClick }: PokemonGridCardProps)
         </div>
 
         <div className="flex flex-col items-center gap-1.5">
-          <span className="text-sm font-bold capitalize drop-shadow">{pokemon.name}</span>
+          <span className="font-heading text-base font-bold tracking-tight capitalize drop-shadow-sm">
+            {pokemon.name}
+          </span>
           <div className="flex flex-wrap justify-center gap-1">
             {pokemon.types.map(({ type }) => (
               <span

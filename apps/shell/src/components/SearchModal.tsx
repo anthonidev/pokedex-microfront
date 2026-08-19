@@ -87,18 +87,18 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         showCloseButton
-        className="top-0 left-0 grid h-screen w-screen max-w-none translate-x-0 translate-y-0 grid-rows-[auto_1fr] gap-0 rounded-none p-0 sm:max-w-none"
+        className="top-0 left-0 grid h-screen w-screen max-w-none translate-x-0 translate-y-0 grid-rows-[auto_1fr] gap-0 rounded-none p-0 duration-200 ease-out data-open:zoom-in-100 data-open:slide-in-from-top-2 data-closed:zoom-out-100 data-closed:slide-out-to-top-2 sm:max-w-none"
       >
         <DialogTitle className="sr-only">Buscar Pokémon</DialogTitle>
 
-        <div className="flex items-center gap-3 border-b border-border p-4">
+        <div className="flex items-center gap-3 border-b border-border py-4 pr-14 pl-4">
           <Search className="size-5 shrink-0 text-muted-foreground" />
           <Input
             autoFocus
             value={term}
             onChange={(event) => setTerm(event.target.value)}
             placeholder="Buscar Pokémon por nombre exacto…"
-            className="border-none px-0 text-base shadow-none focus-visible:ring-0"
+            className="border-none px-1 text-base shadow-none focus-visible:ring-0"
           />
         </div>
 

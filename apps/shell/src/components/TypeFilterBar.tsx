@@ -126,12 +126,14 @@ function FilterChip({
       {active && (
         <motion.span
           layoutId="active-filter-pill"
-          className="absolute inset-0 rounded-full"
-          style={{ backgroundColor: color ?? 'var(--foreground)' }}
+          className={cn('absolute inset-0 rounded-full', !color && 'bg-foreground')}
+          style={color ? { backgroundColor: color } : undefined}
           transition={{ type: 'spring', stiffness: 500, damping: 35 }}
         />
       )}
-      <span className={cn('relative z-10', active && 'text-white')}>{children}</span>
+      <span className={cn('relative z-10', active && (color ? 'text-white' : 'text-background'))}>
+        {children}
+      </span>
     </button>
   );
 }
