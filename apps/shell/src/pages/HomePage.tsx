@@ -6,7 +6,8 @@ import TypeFilterBar, { type TypeFilter } from '@/components/TypeFilterBar';
 import { useInfiniteScrollTrigger } from '@/hooks/use-infinite-scroll-trigger';
 
 const PAGE_SIZE = 30;
-const GRID_CLASS = 'grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5';
+const GRID_CLASS =
+  'grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8';
 
 export default function HomePage() {
   const [filter, setFilter] = useState<TypeFilter>('all');

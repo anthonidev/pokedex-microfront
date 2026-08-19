@@ -25,7 +25,7 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+        <div className="flex w-full items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
             <span className="text-lg font-bold">Atlantic City · Pokédex</span>
             <nav className="flex items-center gap-1">
@@ -56,7 +56,7 @@ export default function AppLayout() {
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-6">
+      <main className="w-full px-4 py-6 sm:px-6 lg:px-8">
         <Outlet />
       </main>
 
