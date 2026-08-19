@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useInfiniteQuery, useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import {
@@ -29,7 +28,6 @@ interface SearchModalProps {
 export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
   const [term, setTerm] = useState('');
   const debouncedTerm = useDebouncedValue(term.trim().toLowerCase(), 500);
-  const navigate = useNavigate();
 
   const isSearching = term.trim().length > 0;
 
@@ -78,15 +76,26 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
     if (!next) setTerm('');
   }
 
-  function goToPokemon(name: string) {
+  // The actual navigation happens through PokemonGridCard's own `<Link>` — this only
+  // closes the modal. It used to also call `navigate()` here, which double-navigated
+  // (the Link's default click behavior still fired too): one click pushed two history
+  // entries, so the back button needed two presses to leave the detail page.
+  function closeModal() {
     handleOpenChange(false);
-    navigate(`/pokemon/${name}`);
   }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         showCloseButton
+        // Radix's own Escape-to-dismiss only fires when this layer resolves as the
+        // "highest" one in its internal stacking context (@radix-ui/react-dismissable-layer);
+        // that check didn't reliably come out true here, silently leaving Escape a no-op.
+        // Handling it explicitly guarantees the standard "Escape closes the modal" behavior
+        // regardless of that internal stacking quirk.
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') handleOpenChange(false);
+        }}
         className="top-0 left-0 grid h-screen w-screen max-w-none translate-x-0 translate-y-0 grid-rows-[auto_1fr] gap-0 rounded-none p-0 duration-200 ease-out data-open:zoom-in-100 data-open:slide-in-from-top-2 data-closed:zoom-out-100 data-closed:slide-out-to-top-2 sm:max-w-none"
       >
         <DialogTitle className="sr-only">Buscar Pokémon</DialogTitle>
@@ -108,7 +117,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
               term={term}
               exactQuery={exactQuery}
               suggestions={suggestions}
-              onSelect={goToPokemon}
+              onSelect={closeModal}
             />
           ) : listQuery.isPending ? (
             <SkeletonGrid />
@@ -122,6 +131,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                       key={item.name}
                       item={item}
                       onClick={() => handleOpenChange(false)}
+                      viewTransition={false}
                     />
                   ))}
               </div>
@@ -164,7 +174,7 @@ function SearchResults({
   term: string;
   exactQuery: UseQueryResult<Pokemon>;
   suggestions: PokemonListItem[];
-  onSelect: (name: string) => void;
+  onSelect: () => void;
 }) {
   if (exactQuery.isSuccess) {
     const pokemon = exactQuery.data;
@@ -172,7 +182,8 @@ function SearchResults({
       <div className={GRID_CLASS}>
         <PokemonGridCard
           item={{ name: pokemon.name, url: `https://pokeapi.co/api/v2/pokemon/${pokemon.id}/` }}
-          onClick={() => onSelect(pokemon.name)}
+          onClick={onSelect}
+          viewTransition={false}
         />
       </div>
     );
@@ -182,7 +193,12 @@ function SearchResults({
     return (
       <div className={GRID_CLASS}>
         {suggestions.map((item) => (
-          <PokemonGridCard key={item.name} item={item} onClick={() => onSelect(item.name)} />
+          <PokemonGridCard
+            key={item.name}
+            item={item}
+            onClick={onSelect}
+            viewTransition={false}
+          />
         ))}
       </div>
     );

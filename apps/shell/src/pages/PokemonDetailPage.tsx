@@ -4,11 +4,10 @@ import RemoteBoundary from '@/RemoteBoundary';
 
 /**
  * Reads the route param here (in the Shell) and passes it down as a plain prop
- * instead of having MF1 call useParams() itself — MF1 bundles its own separate
- * copy of react-router-dom, so its Context wouldn't see the Shell's Router
- * anyway. This also means MF1 has zero router dependency. See docs/adr/003.
- * Same reasoning for `onNavigate` (prev/next): MF1 asks the Shell to change
- * the URL instead of doing it itself.
+ * instead of having MF1 call useParams() itself — MF1 has zero react-router
+ * dependency of its own, so it has no Router context to read from anyway.
+ * See docs/adr/003. Same reasoning for `onNavigate` (prev/next): MF1 asks the
+ * Shell to change the URL instead of doing it itself.
  */
 export default function PokemonDetailPage() {
   const { name } = useParams<{ name: string }>();

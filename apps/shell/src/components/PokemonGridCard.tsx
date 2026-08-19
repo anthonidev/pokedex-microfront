@@ -11,9 +11,18 @@ import {
 interface PokemonGridCardProps {
   item: PokemonListItem;
   onClick?: () => void;
+  /** False inside SearchModal — its grid renders the same cards as Home's, which stays
+   * mounted (with its own closing animation) behind the modal. Two elements sharing a
+   * `viewTransitionName` at the same time makes the browser abort the transition with
+   * "Unexpected duplicate view-transition-name". Defaults to true for Home/History. */
+  viewTransition?: boolean;
 }
 
-export default function PokemonGridCard({ item, onClick }: PokemonGridCardProps) {
+export default function PokemonGridCard({
+  item,
+  onClick,
+  viewTransition = true,
+}: PokemonGridCardProps) {
   const { data: pokemon, isPending } = useQuery({
     queryKey: ['pokemon-detail', item.name],
     queryFn: () => getPokemonByName(item.name),
@@ -38,7 +47,7 @@ export default function PokemonGridCard({ item, onClick }: PokemonGridCardProps)
       <Link
         to={`/pokemon/${pokemon.name}`}
         onClick={onClick}
-        viewTransition
+        viewTransition={viewTransition}
         className="relative flex h-full w-full flex-col overflow-hidden rounded-2xl p-3 text-white shadow-md"
         style={{ backgroundImage: getPokemonTypeGradient(primaryType) }}
       >
@@ -56,7 +65,7 @@ export default function PokemonGridCard({ item, onClick }: PokemonGridCardProps)
               // Pokémon — the browser morphs position/size between the two automatically. See
               // docs/adr/018. Keyed by name (not a fixed value) since every card in the grid
               // needs a distinct name while they're all visible together.
-              style={{ viewTransitionName: `pokemon-artwork-${pokemon.name}` }}
+              style={viewTransition ? { viewTransitionName: `pokemon-artwork-${pokemon.name}` } : undefined}
               className="size-24 object-contain drop-shadow-lg sm:size-28"
             />
           )}
