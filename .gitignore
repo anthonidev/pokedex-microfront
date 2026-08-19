@@ -3,6 +3,9 @@ dist
 dist-ssr
 .turbo
 .mf
+.vercel
+.playwright-mcp
+coverage
 *.local
 .env
 .env.*
