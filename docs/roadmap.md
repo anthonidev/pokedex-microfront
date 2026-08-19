@@ -112,23 +112,41 @@ Verificado con Playwright en las 3 apps (standalone y federado), light/dark, sin
 
 - [x] **UI alineada al resto de la app + acciones nuevas**: la lista angosta de una columna pasó a una grilla de cards a todo el ancho (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`), mismo lenguaje visual que Home/Detalle. Se agregó: borrar un registro individual (sin confirmación, bajo riesgo), vaciar todo el historial (confirmación inline "¿Vaciar todo? Sí/Cancelar" en vez de un modal — evita sumar una dependencia de diálogo a MF2 solo para esto), y un botón para ir al detalle de cada Pokémon (`onViewDetail` opcional desde el Shell, mismo patrón router-free que MF1 — ver ADR 003). Nuevas `removeHistoryEntry`/`clearHistory` en `packages/shared`. Ver `docs/adr/021`.
 
+### Auditoría completa + bugs corregidos (pre Fase 6-8)
+
+Antes de arrancar el resto del pulido, auditoría contra el README (funcional, arquitectura, calidad de código) y caza de bugs, verificada en vivo con Playwright (no solo lectura estática):
+
+- [x] **Doble navegación al elegir un resultado en el buscador**: `SearchModal` llamaba `navigate()` a mano en el `onClick` que le pasaba a `PokemonGridCard`, pero el `<Link>` interno de la card también navega solo (el `onClick` externo no hacía `preventDefault`) — un solo click empujaba **2 entradas al history**, rompiendo el botón "atrás" (había que pulsarlo dos veces para salir del detalle). Verificado instrumentando `history.pushState`. Fix: el `onClick` que recibe `PokemonGridCard` desde el buscador ahora solo cierra el modal; la navegación la hace el `Link` una sola vez.
+- [x] **View transition rota al navegar desde el buscador**: `Unexpected duplicate view-transition-name: pokemon-artwork-bulbasaur` en consola, transición abortada. Causa: la grilla del modal de búsqueda muestra las mismas cards que la grilla de Home, que sigue montada detrás (con su propia animación de cierre) — dos elementos con el mismo `viewTransitionName` simultáneamente. Fix: nueva prop `viewTransition` en `PokemonGridCard` (default `true`), puesta en `false` en los 3 usos dentro de `SearchModal` — la búsqueda ya no intentaba el morph antes de este audit tampoco, así que no es una regresión de UX, solo se resolvió la colisión de raíz.
+- [x] **Comentario desactualizado** en `PokemonDetailPage.tsx` (decía que MF1 bundlea su propia copia de react-router-dom — ya no es así, MF1 no tiene la dependencia).
+- [~] **Intento de `singleton: true` explícito en Module Federation** (los 3 `vite.config.ts` usan el shorthand `shared: ['react', 'react-dom']`, que implica `singleton: false` — riesgo teórico de "Invalid hook call" si las versiones de React llegaran a divergir entre apps). Se probó la forma objeto con `singleton: true` — rompió el dev server (`@module-federation/vite@1.20.7`, error de Vite `Pre-transform error ... without null bytes` sobre el virtual module de `react-dom`, página en blanco). Revertido: no vale la pena cambiar un dev server que funciona por un hardening de config en una versión de plugin que no lo soporta bien, más aún con las 3 apps ya fijando la misma versión de React (`^19.2.8`). Queda documentado en el propio `vite.config.ts` para no reintentarlo a ciegas.
+
+Hallazgos de la auditoría que quedan pendientes, no bugs: falta el README raíz de entrega (Fase 8, bloqueante real) y la cobertura de tests (Fase 7). También quedó marcado que Home muestra 30 Pokémon por categoría + scroll infinito en vez de los "10" literales del README — decisión ya tomada (ver ADR 011), conviene que el README de entrega la reconozca explícitamente.
+
 ### Fase 6 — Polish
 
-- [ ] Responsive (mobile/tablet/desktop) en las 3 apps.
-- [ ] Transiciones: apertura de modal, cambio de tema, toast (entrada/salida).
-- [ ] Auditoría de loading/error/empty states — que ninguna pantalla quede en blanco sin feedback.
-- [ ] Accesibilidad básica: foco atrapado en modal, `aria-live` en toast, contraste en dark mode.
+- [x] **Responsive (mobile/tablet/desktop)**: revisado con Playwright en mobile (375px), y desktop (1440px), light/dark, en Home/Detalle (tabs Info/Stats)/Historial — sin overflow, sin texto cortado, radar de stats legible en ambos temas.
+- [x] Transiciones: modal (zoom+slide), cambio de tema (instantáneo por CSS variables, sin flash), toast (entrada/salida de Sonner) — ya cubiertas por trabajo previo de la sesión (ver ADR 014/018).
+- [x] Auditoría de loading/error/empty states — ya cubierta en la auditoría de bugs anterior (skeletons de Shell/MF1/MF2, estados de error en queries, empty state de Historial).
+- [x] **Accesibilidad**:
+  - Foco atrapado + autofocus en el modal de búsqueda: ✅ ya funcionaba (Radix `FocusScope`).
+  - **Bug real encontrado y corregido — Escape no cerraba el modal de búsqueda.** Causa raíz identificada leyendo el código fuente de `@radix-ui/react-dismissable-layer`: su listener de Escape solo se registra si esa capa resuelve como "la más alta" (`isHighestLayer`) en su stack interno — esa condición no se cumplía de forma fiable acá. Se agregó un `onKeyDown` explícito en `SearchModal` que cierra el modal en Escape, sin depender de ese mecanismo interno. Verificado en vivo (abrir → Escape → se cierra).
+  - `aria-modal`: esta versión de `@radix-ui/react-dialog` (1.1.23) nunca lo setea (confirmado en su código fuente, no es algo que rompimos) — se agregó explícito en el wrapper `ui/dialog.tsx`.
+  - `aria-live` en el toast: ya lo trae Sonner por defecto (`aria-live="polite"` en el contenedor de notificaciones) — sin cambios necesarios.
+  - Contraste en dark mode: revisado visualmente en Home/Detalle/Stats/Historial, sin problemas de legibilidad.
+- **Hallazgo menor, no corregido (a decisión del usuario)**: el toast de "último visitado" (`bottom-right` en desktop, `duration: Infinity` hasta que se cierra) puede superponerse visualmente con contenido de la esquina inferior derecha de la página (ej. la card de Estadísticas en el detalle, o las últimas cards de la grilla de Home) mientras está abierto. Es el comportamiento estándar de un toast de esquina fija en cualquier app (Gmail, Slack, etc.) — no bloquea funcionalidad, el toast es descartable — pero se documenta como trade-off conocido en vez de corregirse sin consultar, ya que ya se había marcado la posición del toast como una decisión de UI no exigida por el README.
 
 ### Fase 7 — Testing
 
-- [ ] Vitest + RTL configurado en `packages/shared` y en cada app.
-- [ ] Test: lógica de historial (incremento, dedupe, persistencia) — la pieza de lógica de negocio más "no trivial" del reto.
-- [ ] Test: búsqueda exacta (lowercase, no encontrado).
-- [ ] Test: lógica de dismiss del toast (no reaparece hasta nueva visita).
-- [ ] 1-2 smoke tests de render por app (Shell/MF1/MF2).
+- [x] Vitest + RTL configurado en `packages/shared` y en cada app (`vitest.shared.config.ts` en la raíz, mismo patrón que `vite.shared.config.ts`; `@testing-library/jest-dom/vitest` como `setupFiles` en las 3 apps). Tuvo que agregarse un `src/vitest.d.ts` por app (solo `import '@testing-library/jest-dom/vitest'`) porque `tsconfig.app.json` fija un array `types` explícito que no recogía la ampliación de tipos de los matchers — sin eso, `tsc -b` fallaba con `toBeInTheDocument` inexistente aunque `vitest run` sí pasaba (vitest no type-checka).
+- [x] Test: lógica de historial (incremento, dedupe, persistencia, `removeHistoryEntry`, `clearHistory`) — `packages/shared/src/lib/history-storage.test.ts`, 16 tests.
+- [x] Test: búsqueda exacta (lowercase, no encontrado) — normalización a lowercase y rechazo en 404 en `packages/shared/src/api/pokeapi.test.ts`; comportamiento end-to-end (incluye mayúsculas y "sin sugerencias → No encontrado") en `apps/shell/src/components/SearchModal.test.tsx`.
+- [x] Test: lógica de dismiss del toast (no reaparece hasta nueva visita, incluido el caso borde de revisitar el mismo Pokémon) — `shouldShowReloadToast`/`dismissReloadToast` en `history-storage.test.ts`.
+- [x] Smoke tests de render por app: `mf2-history` (`History.test.tsx`, 7 tests — lista/conteo/remove/clear/onViewDetail, sin red porque History es 100% localStorage), `mf1-detail` (`StatRadar.test.tsx` + `PokemonDetail.test.tsx` con fetch mockeado, incluye verificar que la visita se registra en el historial), `shell` (`LoginPage.test.tsx` — credenciales inválidas / login correcto).
+- 41 tests en total, 4/4 packages en verde (`pnpm turbo run test typecheck lint` y `pnpm turbo run build`).
 
 ### Fase 8 — Entrega
 
-- [ ] README raíz: instalación, scripts, cómo levantar Shell + MFs (juntos y standalone), decisiones técnicas (enlazando a `docs/adr/`).
-- [ ] Repaso final contra los 4 criterios de evaluación del README original (Arquitectura / Funcionalidad / Calidad de código / UX-UI).
+- [x] README raíz: instalación, scripts, cómo levantar Shell + MFs (juntos y standalone), decisiones técnicas (enlazando a `docs/adr/`). Reemplazó al README original del enunciado (preservado en el historial de git) — decisión confirmada con el usuario antes de sobreescribirlo.
+- [x] **Repaso final contra los 4 criterios de evaluación**: Arquitectura (30%) y Calidad de código (20%) — cubiertos, ver auditoría de arquitectura de esta sesión (MFs standalone, sin store compartido, `packages/shared` bien acotado, TS `strict` sin `any`). Funcionalidad (30%) — todo lo obligatorio del README cumplido; única desviación (30 vs 10 por categoría en Home) documentada en el README raíz. UX/UI (20%) — tema, transiciones (View Transitions + Framer Motion), responsive y accesibilidad básica auditados en la Fase 6 de arriba. Sin bloqueantes pendientes.
 - [ ] Opcional (si sobra tiempo): deploy demo (Vercel/Netlify, 3 apps o Shell con MFs embebidos en build).
