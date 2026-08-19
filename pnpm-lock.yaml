@@ -23,6 +23,9 @@ importers:
       '@acity/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@tanstack/react-query':
+        specifier: ^5.101.4
+        version: 5.101.4(react@19.2.8)
       react:
         specifier: ^19.2.8
         version: 19.2.8

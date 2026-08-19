@@ -4,7 +4,7 @@ import PokemonDetail from './PokemonDetail';
 function App() {
   return (
     <main className="min-h-screen bg-background p-8 text-foreground">
-      <PokemonDetail />
+      <PokemonDetail name="pikachu" />
     </main>
   );
 }

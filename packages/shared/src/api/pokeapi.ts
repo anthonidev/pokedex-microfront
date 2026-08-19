@@ -27,9 +27,14 @@ export function getPokemonById(id: number | string): Promise<Pokemon> {
   return fetchJson<Pokemon>(`${BASE_URL}/pokemon/${id}`);
 }
 
-/** Prefers the background-less official artwork SVG/PNG, falls back to the default sprite. */
+/**
+ * Prefers `dream_world` (an actual background-less SVG) per the README's "preferentemente
+ * SVG sin fondo" requirement — not every Pokémon has one, so falls back to the PNG
+ * official artwork, then the default sprite.
+ */
 export function getPokemonArtwork(pokemon: Pokemon): string {
   return (
+    pokemon.sprites.other?.dream_world?.front_default ??
     pokemon.sprites.other?.['official-artwork']?.front_default ??
     pokemon.sprites.other?.home?.front_default ??
     pokemon.sprites.front_default ??

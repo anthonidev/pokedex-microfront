@@ -40,12 +40,14 @@ Dimensionado para el límite de **2 días calendario**. Cada fase tiene un check
 
 ### Fase 3 — MF1: Detalle de Pokémon
 
-- [ ] App standalone funcional en :3001 sin depender del Shell corriendo.
-- [ ] Fetch por id/nombre: `GET /pokemon/{id|name}`.
-- [ ] UI: imagen (preferir `sprites.other['official-artwork'].front_default` o el SVG disponible), nombre, tipos, stats base.
-- [ ] Loading/error states (incluyendo Pokémon inexistente).
-- [ ] Al montar: registra la visita en `localStorage` (incrementa contador, evita duplicados) y dispara `CustomEvent('pokemon-visited', { detail })`.
-- [ ] Wireado como remote consumido por el Shell en la ruta `/pokemon/:name`.
+- [x] App standalone funcional en :3001 sin depender del Shell corriendo — verificado con Playwright (Pikachu demo, historial se registra igual).
+- [x] Fetch por nombre: `GET /pokemon/{name}` (el Shell pasa `name`, no id — ver `adr/003`).
+- [x] UI: imagen SVG sin fondo (`dream_world`, con fallback a PNG), nombre, badges de tipo con color por tipo, stats con barras.
+- [x] Loading/error states — "No encontrado" con `retry: false` (ver bug corregido abajo).
+- [x] Al montar: registra la visita en `localStorage` (incrementa contador, evita duplicados) y dispara `CustomEvent('pokemon-visited', { detail })` — verificado (visits 1 → 2 tras reload).
+- [x] Wireado como remote consumido por el Shell en la ruta `/pokemon/:name` — Shell lee el param y lo pasa como prop (`adr/003`), cada remote con su propio `QueryClientProvider` (`adr/006`).
+
+**Bug encontrado y corregido en esta fase:** sin `retry: false`, TanStack Query reintentaba 3 veces con backoff antes de mostrar "No encontrado" en un 404 (~5-7s de pantalla en blanco). Un 404 de PokeAPI es definitivo, no transitorio — reintentar no tenía sentido. Mismo fix ya aplicado en el `exactQuery` del buscador (Fase 2).
 
 ### Fase 4 — MF2: Historial
 

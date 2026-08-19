@@ -5,8 +5,8 @@ import AppLayout from './layout/AppLayout';
 import ProtectedRoute from './routes/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
+import PokemonDetailPage from './pages/PokemonDetailPage';
 
-const PokemonDetail = lazy(() => import('mf1Detail/PokemonDetail'));
 const History = lazy(() => import('mf2History/History'));
 
 function App() {
@@ -17,14 +17,7 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/" element={<HomePage />} />
-          <Route
-            path="/pokemon/:name"
-            element={
-              <RemoteBoundary label="mf1Detail/PokemonDetail">
-                <PokemonDetail />
-              </RemoteBoundary>
-            }
-          />
+          <Route path="/pokemon/:name" element={<PokemonDetailPage />} />
           <Route
             path="/history"
             element={

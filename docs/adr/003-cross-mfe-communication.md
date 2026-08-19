@@ -8,7 +8,9 @@ Shell, MF1 y MF2 son bundles independientes de Module Federation, potencialmente
 
 Tres canales nativos del browser, sin estado de React compartido entre bundles:
 
-1. **Routing** — el Shell pasa `pokemonId`/`name` a MF1 vía **route param** (`/pokemon/:name`), no vía props inyectadas en el import federado. MF1 lee el param con su propio `useParams` (o lo recibe como prop simple si el Shell controla el router) y hace su propio fetch.
+1. **Routing** — el Shell pasa `pokemonId`/`name` a MF1 vía **route param** (`/pokemon/:name`).
+
+   > **Actualización (implementación, Fase 3):** MF1 **no** llama `useParams()` internamente. Cada bundle federado trae su propia copia de `react-router-dom` (no está en la lista `shared` de Module Federation) — como React Router funciona con Context de React, dos copias distintas no comparten el mismo Context, así que `useParams()` dentro de MF1 devolvería `undefined` aunque el Shell sí tenga la ruta bien matcheada. Es un problema conocido de microfrontends con router. Se resolvió así: el **Shell** lee el param en `apps/shell/src/pages/PokemonDetailPage.tsx` con su propio `useParams()` y se lo pasa a `<PokemonDetail name={name} />` como **prop simple**. MF1 queda con cero dependencia de `react-router-dom` — más alineado todavía con "MF1 debe ser standalone", y evita compartir esa librería como singleton entre bundles.
 2. **`localStorage` + `CustomEvent`** — MF1, al montar, escribe/incrementa la entrada de historial en `localStorage` y dispara `window.dispatchEvent(new CustomEvent('pokemon-visited', { detail: entry }))`. MF2 y el Shell (toast) se suscriben a ese evento con `window.addEventListener`.
 3. **`document.documentElement` + `localStorage`** — el tema se aplica como clase CSS en el `<html>`, no vía Context de React. Ver [`adr/004`](./004-styling-tailwind.md) para el detalle de theming.
 

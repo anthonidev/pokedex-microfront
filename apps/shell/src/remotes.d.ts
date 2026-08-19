@@ -1,6 +1,6 @@
 declare module 'mf1Detail/PokemonDetail' {
   import type { ComponentType } from 'react';
-  const PokemonDetail: ComponentType;
+  const PokemonDetail: ComponentType<{ name: string }>;
   export default PokemonDetail;
 }
 
