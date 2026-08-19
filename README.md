@@ -172,3 +172,7 @@ Si en algún momento se agrega un dominio propio, conviene reemplazar el `*` por
 ### Nota: por qué `RemoteBoundary` no usa `React.lazy`/`Suspense`
 
 Con Shell y los remotes en orígenes distintos (como en este deploy), `React.lazy()` + `<Suspense>` se quedaban esperando para siempre sin ningún error, aunque el módulo remoto se resolvía perfecto a nivel de Module Federation — invisible en `pnpm dev` porque ahí todo comparte un solo servidor Vite. `apps/shell/src/RemoteBoundary.tsx` usa un `useEffect` manual en su lugar. Diagnóstico completo en [`docs/adr/002`](./docs/adr/002-module-federation-vite.md).
+
+### Nota: por qué MF1/MF2 no envían su propio CSS al Shell
+
+`bundleAllCSS` está en `false` en los remotes (a propósito). Tenerlo en `true` causaba que, cruzando orígenes reales, dos hojas de Tailwind v4 compiladas por separado terminaran fusionando sus capas `@layer utilities` en el mismo documento — una clase base duplicada de un remote (ej. `.flex`) podía terminar ganándole, por orden de cascada, a una clase responsiva del Shell (`.sm\:hidden`), rompiendo los breakpoints del Shell entero. El Shell ya escanea el código fuente de los remotes vía `@source` (`apps/shell/src/index.css`) y genera un superset de sus clases, así que nunca necesitó su CSS. Diagnóstico completo en [`docs/adr/002`](./docs/adr/002-module-federation-vite.md).
