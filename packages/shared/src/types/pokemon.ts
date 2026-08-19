@@ -103,6 +103,19 @@ export function getPokemonTypeColor(typeName: string): string {
   return (POKEMON_TYPE_COLORS as Record<string, string>)[typeName] ?? FALLBACK_TYPE_COLOR;
 }
 
+/** Soft-to-vivid diagonal gradient for card backgrounds, derived from the same type color. */
+export function getPokemonTypeGradient(typeName: string): string {
+  const color = getPokemonTypeColor(typeName);
+  return `linear-gradient(160deg, color-mix(in srgb, ${color} 35%, white) 0%, ${color} 100%)`;
+}
+
+export interface PokemonMove {
+  move: {
+    name: string;
+    url: string;
+  };
+}
+
 export interface Pokemon {
   id: number;
   name: string;
@@ -111,4 +124,21 @@ export interface Pokemon {
   types: PokemonTypeSlot[];
   stats: PokemonStat[];
   sprites: PokemonSprites;
+  moves: PokemonMove[];
+}
+
+export interface PokemonSpeciesFlavorText {
+  flavor_text: string;
+  language: { name: string; url: string };
+}
+
+export interface PokemonSpecies {
+  flavor_text_entries: PokemonSpeciesFlavorText[];
+}
+
+export interface PokemonTypeDetails {
+  name: string;
+  damage_relations: {
+    double_damage_to: Array<{ name: string; url: string }>;
+  };
 }

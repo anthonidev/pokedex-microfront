@@ -1,4 +1,10 @@
-import type { Pokemon, PokemonListResponse, PokemonTypeResponse } from '../types/pokemon';
+import type {
+  Pokemon,
+  PokemonListResponse,
+  PokemonSpecies,
+  PokemonTypeDetails,
+  PokemonTypeResponse,
+} from '../types/pokemon';
 
 const BASE_URL = 'https://pokeapi.co/api/v2';
 
@@ -27,6 +33,23 @@ export function getPokemonById(id: number | string): Promise<Pokemon> {
   return fetchJson<Pokemon>(`${BASE_URL}/pokemon/${id}`);
 }
 
+/** Flavor text + damage relations live on separate PokeAPI resources from `/pokemon/{id}`. */
+export function getPokemonSpecies(name: string): Promise<PokemonSpecies> {
+  return fetchJson<PokemonSpecies>(`${BASE_URL}/pokemon-species/${name.toLowerCase()}`);
+}
+
+export function getTypeDetails(typeName: string): Promise<PokemonTypeDetails> {
+  return fetchJson<PokemonTypeDetails>(`${BASE_URL}/type/${typeName}`);
+}
+
+/** First Spanish flavor text if PokeAPI has one for this species, else the first English one. */
+export function getFlavorText(species: PokemonSpecies): string {
+  const entry =
+    species.flavor_text_entries.find((e) => e.language.name === 'es') ??
+    species.flavor_text_entries.find((e) => e.language.name === 'en');
+  return entry ? entry.flavor_text.replace(/[\n\f\r]+/g, ' ') : '';
+}
+
 /**
  * Prefers `dream_world` (an actual background-less SVG) per the README's "preferentemente
  * SVG sin fondo" requirement — not every Pokémon has one, so falls back to the PNG
@@ -45,8 +68,8 @@ export function getPokemonArtwork(pokemon: Pokemon): string {
 /**
  * `/type/{type}` and `/pokemon?limit=&offset=` only return `{ name, url }`, not sprites.
  * The numeric id is embedded in the url (".../pokemon/6/"), so we can derive the
- * official-artwork image directly from the static sprites CDN — avoiding N extra
- * `/pokemon/{name}` requests per row on the Home page (10 per type × 18 types).
+ * official-artwork image directly from the static sprites CDN without an extra request —
+ * used by the search modal's browse grid, which doesn't need per-card type data.
  */
 export function getPokemonIdFromUrl(url: string): number {
   const match = /\/pokemon\/(\d+)\/?$/.exec(url);

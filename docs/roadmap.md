@@ -76,6 +76,16 @@ Antes de arrancar Polish, se hizo una auditoría del código de las Fases 0-5 (c
 
 Mejoras de reuso aplicadas: `NotFoundState` extraído a `packages/shared` (estaba duplicado entre Shell y MF1), accessor seguro `getPokemonTypeColor` (sin cast `as PokemonType`), y config de build de Vite extraída a `vite.shared.config.ts` (evita repetirla en los 3 `vite.config.ts`).
 
+### Rediseño visual (post Fase 5, antes de Polish)
+
+El usuario revisó la app corriendo y pidió mejoras concretas de UI/UX antes de seguir con Polish/Testing/Entrega:
+
+- [x] **Login**: react-hook-form + zod (validación de formato), toggle mostrar/ocultar contraseña, credenciales demo precargadas, rediseño visual (badge, glow, animación de entrada). Ver `docs/adr/008`.
+- [x] **Home**: reemplazadas las 18 filas horizontales por un filtro de tipo (chips) + una sola grilla con scroll infinito — resuelve el scroll horizontal molesto que señaló el usuario. Cards con gradiente de color por tipo y numeración `#NNN` (referencia visual del usuario). Ver `docs/adr/011` (actualizado, supersede la decisión original de Fase 1).
+- [x] **Detalle (MF1)**: header con gradiente por tipo, navegación prev/next entre Pokémon consecutivos, tabs Info/Stats/Movimientos, sección "Fuerte contra" (type-effectiveness real de PokeAPI), descripción (flavor text). Deliberadamente por fuera del alcance mínimo del README, a pedido explícito del usuario — sin agregar botones decorativos sin función real. Ver `docs/adr/013` (nuevo).
+
+Verificado con Playwright en las 3 apps (standalone y federado), light/dark, sin errores de consola. Un bug de layout encontrado y corregido en el momento (badge de tipo tapado por la imagen en el header del detalle).
+
 ### Fase 6 — Polish
 
 - [ ] Responsive (mobile/tablet/desktop) en las 3 apps.
