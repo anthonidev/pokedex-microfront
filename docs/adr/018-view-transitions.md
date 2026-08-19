@@ -23,3 +23,9 @@ Implementación:
 
 - Sin dependencias nuevas — API nativa del navegador + soporte ya incluido en react-router v7.
 - Navegadores sin soporte (Safari < 18, Firefox) ignoran `viewTransition` y navegan normal — degrada con gracia, no rompe nada.
+
+## Adenda: requiere el "data router"
+
+Tras implementar esto, la transición no se notaba en absoluto. Se verificó con un monkey-patch de `document.startViewTransition` (contar invocaciones) que **nunca se estaba llamando** a pesar de `viewTransition={true}` en el `Link`. Inspeccionando el código fuente de `react-router`: el manejo de `viewTransitionOpts` (el `useEffect`/callback que efectivamente llama a `document.startViewTransition`) vive en la implementación del **data router** (`createBrowserRouter` + `<RouterProvider>`) — el `<BrowserRouter>` clásico/declarativo es una implementación más simple (historia + re-render por suscripción) que no pasa por ese mecanismo, aunque el prop `viewTransition` siga existiendo en el tipo de `<Link>` sin importar qué router uses (el tipo no sabe cuál elegiste).
+
+Fix: se migró `App.tsx`/`main.tsx` de `<BrowserRouter><Routes>...</Routes></BrowserRouter>` a `createBrowserRouter(createRoutesFromElements(<Route>...</Route>)) + <RouterProvider>` — mismas rutas declaradas en JSX (sin reescribirlas a objetos), solo cambia cómo se las entrega al router. Verificado con el mismo monkey-patch: la navegación ahora sí invoca `document.startViewTransition` exactamente una vez por click.

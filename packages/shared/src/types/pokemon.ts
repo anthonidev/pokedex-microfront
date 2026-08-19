@@ -125,6 +125,9 @@ export interface Pokemon {
   stats: PokemonStat[];
   sprites: PokemonSprites;
   moves: PokemonMove[];
+  /** Base species name — form variants (e.g. `pikachu-libre`) have a *different* `name` than
+   * this, and the `/pokemon-species/{name}` endpoint only accepts the species name. */
+  species: { name: string; url: string };
 }
 
 export interface PokemonSpeciesFlavorText {

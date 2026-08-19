@@ -36,8 +36,10 @@ export default function PokemonDetailContent({ name, onNavigate }: PokemonDetail
   });
 
   const speciesQuery = useQuery({
-    queryKey: ['pokemon-species', name],
-    queryFn: () => getPokemonSpecies(name),
+    // `pokemon.species.name` (not the route `name`) — form variants like `pikachu-libre` have
+    // a different route name than their species; the species endpoint only accepts the latter.
+    queryKey: ['pokemon-species', pokemon?.species.name],
+    queryFn: () => getPokemonSpecies(pokemon!.species.name),
     enabled: !!pokemon,
   });
 
