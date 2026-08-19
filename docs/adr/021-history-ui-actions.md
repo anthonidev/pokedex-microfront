@@ -22,3 +22,10 @@ MF2 (historial) tenía la implementación mínima de la Fase 4 — una lista sim
 
 - `RemoteBoundary` no cambia de interfaz por esto (ya tenía `componentProps` genérico); solo se agregó el wiring puntual en `HistoryPage.tsx`.
 - El README no pide borrar/vaciar historial — es una mejora agregada, no reemplaza nada de lo obligatorio (lista, imagen, nombre, conteo, persistencia siguen intactos).
+
+## Adenda: view transition + skeleton del remote (siguiente iteración)
+
+Dos cosas que faltaban tras la primera versión de este ADR:
+
+- **Morph de la imagen Historial → Detalle**: `onViewDetail` ya navegaba con `viewTransition: true`, pero la imagen de la card no tenía el `viewTransitionName` que sí tiene la card de la grilla de Home — sin ese nombre compartido con el hero del detalle (ver ADR 018), el navegador solo hace el cross-fade genérico de raíz, no el morph de la imagen. Se agregó `viewTransitionName: pokemon-artwork-${entry.name}` a la imagen de cada card, condicionado a que `onViewDetail` exista (si no hay navegación posible, no tiene sentido nombrarla).
+- **Mismo bug del texto "Cargando mf2History/History..."** que tuvo MF1 (ver adenda de ADR 019/roadmap): `RemoteBoundary` para la ruta `/history` no tenía un `fallback` propio, así que mientras el bundle de MF2 descarga se veía el texto genérico en vez de un skeleton. A diferencia de MF1, History no tiene una fase de espera de datos propia (`getHistory()` lee `localStorage` de forma síncrona, no hay fetch), así que alcanza con un solo skeleton — vive directamente en `HistoryPage.tsx` (no en `packages/shared`, no hace falta compartirlo con MF2 porque no hay una segunda fase que cubrir ahí).

@@ -101,7 +101,15 @@ export default function History({ onViewDetail }: HistoryProps) {
             key={entry.name}
             className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 text-card-foreground transition-shadow hover:shadow-md"
           >
-            <img src={entry.image} alt={entry.name} className="size-14 shrink-0 object-contain" />
+            <img
+              src={entry.image}
+              alt={entry.name}
+              // Matches the `viewTransitionName` on the detail page's hero image for this same
+              // Pokémon — morphs into it when navigating there via `onViewDetail`. See
+              // docs/adr/018.
+              style={onViewDetail ? { viewTransitionName: `pokemon-artwork-${entry.name}` } : undefined}
+              className="size-14 shrink-0 object-contain"
+            />
 
             <div className="flex min-w-0 flex-1 flex-col">
               <span className="truncate font-heading text-sm font-bold capitalize">
