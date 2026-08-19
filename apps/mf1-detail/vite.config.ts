@@ -14,6 +14,12 @@ export default defineConfig({
       exposes: {
         './PokemonDetail': './src/PokemonDetail.tsx',
       },
+      // The `['react', 'react-dom']` shorthand implies `singleton: false`. Tried the
+      // object form with explicit `singleton: true` for extra safety, but
+      // @module-federation/vite@1.20.7 breaks on it in dev (`Pre-transform error: ...
+      // without null bytes` on the `react-dom` virtual module, blank page). Reverted —
+      // not worth trading a working dev server for a config-only hardening, especially
+      // since all 3 apps already pin the identical `^19.2.8` React version.
       shared: ['react', 'react-dom'],
       // Without this, this app's compiled CSS never reaches the host — any styling
       // that "worked" was Shell's own Tailwind build coincidentally generating an
