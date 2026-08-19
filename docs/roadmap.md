@@ -61,9 +61,9 @@ Dimensionado para el límite de **2 días calendario**. Cada fase tiene un check
 
 ### Fase 5 — Toast al recargar
 
-- [ ] Shell se suscribe a `pokemon-visited` para toast inmediato tras una visita.
-- [ ] Al montar (recarga de página): si hay `lastVisited` en `localStorage` y no fue "dismisseado" para esa visita → mostrar toast.
-- [ ] Botón "Cerrar" → persiste el dismiss (flag ligado al Pokémon/visita actual) para que no reaparezca hasta la próxima visita nueva.
+- [x] Shell se suscribe a `pokemon-visited` (`VisitToastListener`, montado en `AppLayout`) para toast inmediato tras una visita — verificado con Playwright (Gengar).
+- [x] Al montar (recarga de página): si hay `lastVisited` en `localStorage` y no fue "dismisseado" para esa visita → mostrar toast — verificado (Charizard, reaparece tras reload hasta que se cierra).
+- [x] Botón "Cerrar" → persiste el dismiss vía `dismissReloadToast()` y no reaparece tras recargar — verificado. Toast con `duration: Infinity` (solo desaparece por acción explícita del usuario, no por timeout, para que el dismiss-persistente tenga sentido con lo que pide el README).
 
 ### Fase 6 — Polish
 

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import SearchModal from '@/components/SearchModal';
 import ThemeToggle from '@/components/ThemeToggle';
 import UserMenu from '@/components/UserMenu';
+import VisitToastListener from '@/components/VisitToastListener';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   cn(
@@ -50,6 +51,7 @@ export default function AppLayout() {
       </main>
 
       <SearchModal open={searchOpen} onOpenChange={setSearchOpen} />
+      <VisitToastListener />
     </div>
   );
 }
