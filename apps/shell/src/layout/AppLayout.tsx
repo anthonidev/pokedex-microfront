@@ -3,6 +3,7 @@ import { Search } from 'lucide-react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import SearchModal from '@/components/SearchModal';
 import ThemeToggle from '@/components/ThemeToggle';
 import UserMenu from '@/components/UserMenu';
@@ -28,9 +29,11 @@ export default function AppLayout() {
         <div className="flex w-full items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
             <span className="font-heading text-lg font-bold tracking-tight">
-              Atlantic City · Pokédex
+              <span className="sm:hidden">Pokédex</span>
+              <span className="hidden sm:inline">Atlantic City · Pokédex</span>
             </span>
-            <nav className="flex items-center gap-1">
+            {/* Home/Historial live in the floating bottom nav on mobile — too cramped here. */}
+            <nav className="hidden items-center gap-1 sm:flex">
               <NavLink to="/" end className={navLinkClass}>
                 Home
               </NavLink>
@@ -45,23 +48,26 @@ export default function AppLayout() {
               size="sm"
               aria-label="Buscar Pokémon"
               onClick={() => setSearchOpen(true)}
-              className="gap-2 text-muted-foreground"
+              className="hidden gap-2 text-muted-foreground sm:flex"
             >
               <Search className="size-4" />
-              <span className="hidden sm:inline">Buscar</span>
-              <kbd className="hidden items-center gap-0.5 rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium sm:flex">
+              <span className="hidden lg:inline">Buscar</span>
+              <kbd className="hidden items-center gap-0.5 rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium lg:flex">
                 {isMac ? '⌘' : 'Ctrl'}K
               </kbd>
             </Button>
             <ThemeToggle />
-            <UserMenu />
+            <div className="hidden sm:block">
+              <UserMenu />
+            </div>
           </div>
         </div>
       </header>
-      <main className="w-full px-4 py-6 sm:px-6 lg:px-8">
+      <main className="w-full px-4 py-6 pb-24 sm:px-6 sm:pb-6 lg:px-8">
         <Outlet />
       </main>
 
+      <MobileBottomNav onSearchClick={() => setSearchOpen(true)} />
       <SearchModal open={searchOpen} onOpenChange={setSearchOpen} />
       <VisitToastListener />
     </div>

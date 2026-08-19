@@ -1,5 +1,6 @@
 import { LogOut, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -11,7 +12,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuthStore } from '@/store/auth-store';
 
-export default function UserMenu() {
+interface UserMenuProps {
+  /** Used in the mobile bottom nav — just the icon, no email, matches the other pill items. */
+  iconOnly?: boolean;
+}
+
+export default function UserMenu({ iconOnly = false }: UserMenuProps) {
   const session = useAuthStore((state) => state.session);
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
@@ -21,9 +27,14 @@ export default function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
+        <Button
+          variant={iconOnly ? 'ghost' : 'outline'}
+          size={iconOnly ? 'icon' : 'sm'}
+          aria-label={iconOnly ? 'Cuenta' : undefined}
+          className={cn(!iconOnly && 'gap-2', iconOnly && 'size-11 rounded-full')}
+        >
           <User className="size-4" />
-          {session.email}
+          {!iconOnly && session.email}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
