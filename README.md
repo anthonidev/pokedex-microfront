@@ -1,271 +1,142 @@
-# 🧪 Reto Técnico — Frontend Senior (Microfrontends + React)
+# Atlantic City — Pokédex (Microfrontends)
 
-## Postulación: Desarrollador Frontend Senior
+Solución al reto técnico de Frontend Senior: una Pokédex construida como 3 aplicaciones independientes (Shell + 2 microfrontends) integradas en runtime vía **Module Federation**, consumiendo [PokeAPI](https://pokeapi.co/).
 
-Este reto técnico evalúa tus habilidades en **desarrollo frontend con React**, **arquitectura modular y microfrontends**, **manejo de estado y data fetching**, **buenas prácticas de desarrollo** y **experiencia de usuario**, mediante la implementación de una aplicación **funcional y escalable**.
+> El enunciado original del reto queda preservado en el historial de git y resumido en [`docs/00-overview.md`](./docs/00-overview.md).
 
-El alcance ha sido diseñado para ser **simple y de rápida implementación**, pero lo suficientemente **robusto** como para evaluar un **perfil senior**, priorizando **calidad técnica**, **claridad arquitectónica** y **criterio de diseño**.
+## Stack
 
----
-⏳ Tiempo Máximo de Desarrollo (Obligatorio)
+- **React 19** + **Vite 8** + **TypeScript** (`strict`) en las 3 apps.
+- **Module Federation** (`@module-federation/vite`) para la integración runtime Shell ↔ MF1 ↔ MF2.
+- **Tailwind CSS v4** — estilos y theming claro/oscuro.
+- **Zustand** — estado de sesión y tema (Shell).
+- **TanStack Query** — data fetching contra PokeAPI, un `QueryClient` independiente por app.
+- **react-router v7** (data router) — routing del Shell, incluida la [View Transitions API](./docs/adr/018-view-transitions.md) nativa entre rutas.
+- **pnpm workspaces + Turborepo** — monorepo.
+- **oxlint** — linting.
 
-La prueba debe ser desarrollada y entregada en un plazo máximo de:
+Cada elección de stack (y por qué, y qué alternativas se descartaron) está documentada en [`docs/adr/`](./docs/adr/).
 
-2 días calendario desde el inicio del reto.
+## Requisitos
 
-Se evaluará el cumplimiento funcional dentro del tiempo límite, así como la calidad técnica del resultado.
+- Node ≥ 20
+- pnpm ≥ 10 (`corepack enable` si no lo tenés instalado)
 
----
-## 🚀 1. Objetivo del Reto
+## Instalación y arranque
 
-Implementar una solución **Frontend** basada en **Microfrontends** que incluya:
-
-- Login y sesión de usuario.
-- Home con categorías (tipos) y listado de Pokémon.
-- Buscador con modal fullscreen e infinite scroll.
-- Detalle de Pokémon (Microfrontend 1).
-- Historial de Pokémon visitados (Microfrontend 2).
-- Tema claro / oscuro.
-- Toast al recargar con el último Pokémon visitado.
-
----
-
-## 🏗️ 2. Arquitectura General
-
-La solución consta de **3 aplicaciones**:
-
-### 1. Shell (Host)
-- Login.
-- Home.
-- Layout general.
-- Navegación.
-- Buscador (modal fullscreen).
-- Manejo de theme.
-- Usuario logueado con dropdown (cerrar sesión).
-- Toast global.
-
-### 2. Microfrontend 1 — Detalle de Pokémon
-- Muestra el detalle del Pokémon seleccionado.
-- Se abre desde Home o desde el buscador.
-
-### 3. Microfrontend 2 — Historial
-- Muestra el historial de Pokémon visitados.
-- Conteo de visitas por Pokémon.
-- Persistencia de datos.
-
----
-
-## 🔌 3. Puertos (Obligatorio)
-
-- Shell (Host): http://localhost:3000
-- Microfrontend 1: http://localhost:3001
-- Microfrontend 2: http://localhost:3002
-
----
-
-## 🧰 4. Stack y Librerías
-
-### Requerido
-- React ≥ 16
-- Vite
-- Module Federation (Microfrontends)
-
-### Estilos (elige)
-- CSS
-- CSS Modules
-- Tailwind CSS
-- Styled Components
-
-### Estado / Data Fetching (elige)
-
-**State Management (elige 1):**
-- Redux
-- Redux Toolkit
-- Zustand
-
-**Data Fetching (elige 1):**
-- RTK Query
-- TanStack Query
-- SWR
-- Axios
-
-> Si se utiliza Axios, se espera manejo correcto de loading, error y estados de red.
-
----
-
-## 🌐 5. Integración con PokeAPI
-
-### Obtener Pokémon por categoría (Tipo)
-**GET** `https://pokeapi.co/api/v2/type/{type}`  
-Ejemplo: **GET** `https://pokeapi.co/api/v2/type/fire`
-
-- Listar Pokémon por categoría.
-- Mostrar **10 Pokémon por categoría** en Home.
-
----
-
-### Listado inicial del buscador
-**GET** `https://pokeapi.co/api/v2/pokemon?limit=30&offset=0`
-
-- Mostrar **30 Pokémon por defecto** al abrir el modal.
-- Implementar **scroll infinito**, cargando 30 más al llegar al final (`offset += 30`).
-
----
-
-### Búsqueda de Pokémon por nombre (Exact Match)
-**GET** `https://pokeapi.co/api/v2/pokemon/{name}`  
-Ejemplo: **GET** `https://pokeapi.co/api/v2/pokemon/pikachu`
-
-**Reglas:**
-- El nombre debe coincidir **exactamente** con el usado por la API.
-- Todo en **lowercase**.
-- Sin espacios ni acentos.
-- No es búsqueda por fragmento.
-
-**Comportamiento:**
-- Si existe → mostrar **solo ese Pokémon**.
-- Si no existe → mostrar estado **“No encontrado”**.
-
----
-
-### Detalle del Pokémon
-**GET** `https://pokeapi.co/api/v2/pokemon/{id}`  
-Ejemplo: **GET** `https://pokeapi.co/api/v2/pokemon/4`
-
-- Usar la información retornada para el detalle del Pokémon.
-- Renderizar la imagen preferentemente en **SVG sin fondo** cuando esté disponible.
-
----
-
-## 🧾 6. Microfrontend 1 — Detalle de Pokémon
-
-Debe mostrar como mínimo:
-- Imagen del Pokémon (preferentemente SVG sin fondo).
-- Nombre.
-- Tipos.
-- Stats básicos.
-
----
-
-## 🕒 7. Microfrontend 2 — Historial
-
-Debe mostrar:
-- Lista de Pokémon visitados.
-- Imagen.
-- Nombre.
-- Conteo de visitas por Pokémon.
-
-Persistencia obligatoria (ej: localStorage).
-
----
-
-## 🧠 8. Estrategia de Historial
-
-Se debe implementar una estrategia para:
-- Guardar los Pokémon visitados.
-- Incrementar el contador de visitas al abrir el detalle.
-- Evitar duplicados.
-- Mantener persistencia entre recargas.
-
-Ejemplo de estructura referencial:
-```ts
-{
-  name: string;
-  image: string;
-  visits: number;
-}
+```bash
+pnpm install
+pnpm dev
 ```
-La decisión debe estar documentada en el README.
 
-## 🔔 9. Toast al Recargar
+Esto levanta las 3 apps en paralelo (vía Turborepo):
 
-- Al recargar la página:
-  - Si existe un último Pokémon visitado, mostrar un toast.
-- El toast debe tener botón **Cerrar**.
-- Si el usuario lo cierra:
-  - No debe volver a mostrarse hasta que exista una nueva visita a un Pokémon.
+| App | Rol | URL |
+|---|---|---|
+| `shell` | Host — login, home, buscador, routing, tema, toast | http://localhost:3000 |
+| `mf1-detail` | Remote — detalle de Pokémon | http://localhost:3001 |
+| `mf2-history` | Remote — historial de visitados | http://localhost:3002 |
 
----
+Entrá a **http://localhost:3000**. Login demo (precargado en el formulario):
 
-## ✨ 10. Recomendaciones (Se valorará)
+```
+email:    demo@acity.dev
+password: demo1234
+```
 
-- Tema claro / oscuro bien implementado.
-- Transiciones y animaciones fluidas.
-- Diseño responsive.
-- Manejo correcto de loading, error y empty states.
-- Buen rendimiento y UX cuidada.
+### Levantar un microfrontend solo
 
----
+MF1 y MF2 no dependen del Shell en ningún punto (sin router propio, sin estado inyectado por props obligatorias) — se pueden levantar y probar aislados:
 
-## 🧪 11. Criterios de Evaluación
+```bash
+pnpm --filter mf1-detail dev   # http://localhost:3001
+pnpm --filter mf2-history dev  # http://localhost:3002
+```
 
-### Arquitectura (30%)
-- Separación de responsabilidades.
-- Uso correcto de microfrontends.
-- Integración limpia con el Shell.
+Cada uno trae su propio `App.tsx` de desarrollo que renderiza el componente expuesto con datos reales de PokeAPI, sin mocks.
 
-### Funcionalidad (30%)
-- Home con categorías.
-- Buscador con infinite scroll.
-- Búsqueda exacta por nombre.
-- Detalle funcional.
-- Historial persistente.
-- Toast al recargar.
+## Scripts
 
-### Calidad de Código (20%)
-- Organización.
-- Legibilidad.
-- Buen manejo de estado y data fetching.
+Desde la raíz, corren la tarea en las 3 apps (+ `packages/shared`) vía Turborepo:
 
-### UX / UI (20%)
-- Navegación clara.
-- Tema.
-- Transiciones.
-- Feedback visual.
+| Script | Qué hace |
+|---|---|
+| `pnpm dev` | Levanta Shell + MF1 + MF2 en paralelo |
+| `pnpm build` | Build de producción de las 3 apps |
+| `pnpm lint` | oxlint en todo el monorepo |
+| `pnpm typecheck` | `tsc` en todo el monorepo |
+| `pnpm format` | Prettier sobre `ts/tsx/md/json` |
 
----
+También corren por app individual con `pnpm --filter <app> <script>` (ej. `pnpm --filter shell lint`).
 
-## 🖼️ 12. Pantallas Referenciales
+## Estructura del monorepo
 
-A continuación se muestran **pantallas referenciales** que sirven como guía visual del resultado esperado del reto.
+```
+├── apps/
+│   ├── shell/       # :3000 — host: login, home, buscador, routing, tema, toast
+│   ├── mf1-detail/  # :3001 — remote: detalle de Pokémon
+│   └── mf2-history/ # :3002 — remote: historial de visitados
+├── packages/
+│   └── shared/      # tipos de Pokemon, cliente PokeAPI, tokens de Tailwind, utils de localStorage/eventos
+└── docs/
+    ├── architecture.md   # cómo encajan las 3 apps y cómo se comunican
+    ├── roadmap.md         # fases de desarrollo, con checklist
+    └── adr/                # una decisión técnica por archivo
+```
 
-> Estas imágenes son solo de referencia y **no representan un diseño obligatorio**.  
-> El candidato es libre de proponer su propia solución visual siempre que cumpla con los requerimientos funcionales.
+## Arquitectura (resumen)
 
-### Login | Home | Buscador (Modal Fullscreen) | Toast Último Pokémon Visitado
-<!-- Inserta aquí la imagen -->
-<!-- ![Login](screenshots/login.png) -->
-![shell3000](https://github.com/user-attachments/assets/9eec060a-bfb3-4e2e-99a3-21cef8ba1881)
+El Shell es el único **host** de Module Federation; MF1 y MF2 son **remotes** que exponen un componente de entrada cada uno. No hay store compartido en runtime entre bundles federados — la comunicación cross-MFE pasa por dos canales nativos del browser:
 
-### Detalle de Pokémon
-<!-- Inserta aquí la imagen -->
-<!-- ![Pokemon Detail](screenshots/pokemon-detail.png) -->
-![MF1](https://github.com/user-attachments/assets/e6fa119a-79af-474e-8eb6-9a85f5616fc8)
+- **Routing**: el Shell lee el param de ruta (`/pokemon/:name`) y se lo pasa a MF1 como prop plana — MF1 no tiene dependencia de router.
+- **`localStorage` + `CustomEvent('pokemon-visited')`**: MF1 registra la visita y dispara el evento; MF2 lo escucha para refrescar su lista en vivo, y el Shell lo escucha para disparar el toast global.
 
-### Historial
-<!-- Inserta aquí la imagen -->
-<!-- ![History](screenshots/history.png) -->
-![MF2](https://github.com/user-attachments/assets/77590b96-f07b-4ba4-888a-27acd0fa16e6)
+Detalle completo, diagrama y alternativas descartadas en [`docs/architecture.md`](./docs/architecture.md).
 
+## Decisiones técnicas
 
----
+Cada decisión no trivial (stack, arquitectura, y las de UI que fueron más allá del mínimo del enunciado) está en `docs/adr/`, formato corto: Contexto → Decisión → Alternativas → Consecuencias.
 
-## 📬 13. Entrega Final
+| ADR | Decisión |
+|---|---|
+| [001](./docs/adr/001-monorepo-pnpm-turborepo.md) | Monorepo: pnpm workspaces + Turborepo |
+| [002](./docs/adr/002-module-federation-vite.md) | Module Federation sobre Vite |
+| [003](./docs/adr/003-cross-mfe-communication.md) | Comunicación entre Shell, MF1 y MF2 |
+| [004](./docs/adr/004-styling-tailwind.md) | Estilos: Tailwind CSS |
+| [005](./docs/adr/005-state-management-zustand.md) | State management: Zustand |
+| [006](./docs/adr/006-data-fetching-tanstack-query.md) | Data fetching: TanStack Query |
+| [007](./docs/adr/007-typescript.md) | TypeScript en las 3 apps |
+| [008](./docs/adr/008-auth-strategy-mock.md) | Estrategia de autenticación: mock local |
+| [009](./docs/adr/009-history-persistence-localstorage.md) | Persistencia del historial: localStorage |
+| [010](./docs/adr/010-linting-oxlint.md) | Linting: oxlint |
+| [011](./docs/adr/011-home-category-rows.md) | Home: filtro de tipo + grilla paginada |
+| [012](./docs/adr/012-ui-components-shadcn.md) | Componentes interactivos: shadcn/ui sobre Radix |
+| [013](./docs/adr/013-detail-page-beyond-scope.md) | Detalle: features más allá del alcance mínimo |
+| [014](./docs/adr/014-animations-framer-motion.md) | Animaciones: framer-motion |
+| [015](./docs/adr/015-search-typeahead-and-shortcut.md) | Buscador: sugerencias de tipeo + atajo de teclado |
+| [016](./docs/adr/016-full-width-and-brand-color.md) | Layout a ancho completo + color de marca |
+| [017](./docs/adr/017-mobile-bottom-nav.md) | Mobile: header simplificado + barra flotante inferior |
+| [018](./docs/adr/018-view-transitions.md) | View Transitions API para navegación |
+| [019](./docs/adr/019-detail-page-wide-layout.md) | Detalle: layout ancho en desktop |
+| [020](./docs/adr/020-stat-radar-chart.md) | Estadísticas como radar hexagonal (SVG a mano) |
+| [021](./docs/adr/021-history-ui-actions.md) | Historial: rediseño + acciones de borrado |
 
-El candidato debe entregar:
+El progreso fase a fase (con qué se resolvió y cuándo) está en [`docs/roadmap.md`](./docs/roadmap.md).
 
-- Código fuente completo en repositorio (GitHub o GitLab).
-- README documentado con:
-  - Pasos de instalación.
-  - Scripts.
-  - Cómo levantar Shell y Microfrontends.
-  - Decisiones técnicas.
-- (Opcional) Deploy demo.
+## Estrategia de historial
 
----
+Cada visita al detalle de un Pokémon (MF1) actualiza una entrada en `localStorage` con la forma:
 
-## 🎯 14. Resultado Esperado
+```ts
+{ name: string; image: string; visits: number; lastVisitedAt: string }
+```
 
-Una aplicación **Frontend** basada en **Microfrontends**, funcional y bien estructurada, que demuestre experiencia real en **React**, arquitectura modular y buenas prácticas profesionales.
+Sin duplicados (se busca por `name` y se incrementa `visits` si ya existe), persistente entre recargas, y notificada en vivo a MF2/Shell vía `CustomEvent('pokemon-visited')`. Detalle en [`docs/adr/009`](./docs/adr/009-history-persistence-localstorage.md).
 
-# ✅ ¡Éxitos en el reto!
+## Desviaciones conocidas del enunciado
+
+- **Home muestra ~30 Pokémon por categoría con scroll infinito**, no los "10 por categoría" literales del README original. Fue un cambio deliberado (ver [`docs/adr/011`](./docs/adr/011-home-category-rows.md)): la primera versión con 10 en fila generaba scroll horizontal incómodo; se reemplazó por un filtro de tipo + grilla vertical paginada, que da mejor UX sin perder la funcionalidad de "categorías" pedida.
+
+## Estado de testing
+
+Sin cobertura automatizada todavía (`pnpm test` no tiene runner configurado). Si se retoma, la prioridad documentada en el roadmap es: lógica de historial (incremento/dedupe/persistencia), búsqueda exacta por nombre, y lógica de dismiss del toast — la lógica de negocio no trivial del reto, por delante de smoke tests de componentes.

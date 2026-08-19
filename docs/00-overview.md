@@ -4,7 +4,7 @@
 
 Reto técnico de postulación para Desarrollador Frontend Senior en Atlantic City. Evalúa arquitectura de microfrontends, manejo de estado/data fetching y UX, mediante una app que consume [PokeAPI](https://pokeapi.co/).
 
-Especificación original: [`../README.md`](../README.md).
+El `README.md` raíz pasó a ser el README de entrega (instalación, scripts, arquitectura, decisiones). La especificación original del reto queda preservada en el historial de git (commit previo a la reescritura del README raíz).
 
 ## Restricción dura
 
