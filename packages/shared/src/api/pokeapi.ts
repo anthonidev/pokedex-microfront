@@ -36,3 +36,18 @@ export function getPokemonArtwork(pokemon: Pokemon): string {
     ''
   );
 }
+
+/**
+ * `/type/{type}` and `/pokemon?limit=&offset=` only return `{ name, url }`, not sprites.
+ * The numeric id is embedded in the url (".../pokemon/6/"), so we can derive the
+ * official-artwork image directly from the static sprites CDN — avoiding N extra
+ * `/pokemon/{name}` requests per row on the Home page (10 per type × 18 types).
+ */
+export function getPokemonIdFromUrl(url: string): number {
+  const match = /\/pokemon\/(\d+)\/?$/.exec(url);
+  return match ? Number(match[1]) : 0;
+}
+
+export function getArtworkUrlById(id: number): string {
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
+}

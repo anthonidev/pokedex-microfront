@@ -50,6 +50,30 @@ export interface PokemonSprites {
   };
 }
 
+/** The 18 official PokeAPI types shown as rows on the Home page (excludes non-standard "shadow"/"unknown"). */
+export const POKEMON_TYPES = [
+  'normal',
+  'fire',
+  'water',
+  'electric',
+  'grass',
+  'ice',
+  'fighting',
+  'poison',
+  'ground',
+  'flying',
+  'psychic',
+  'bug',
+  'rock',
+  'ghost',
+  'dragon',
+  'dark',
+  'steel',
+  'fairy',
+] as const;
+
+export type PokemonType = (typeof POKEMON_TYPES)[number];
+
 export interface Pokemon {
   id: number;
   name: string;

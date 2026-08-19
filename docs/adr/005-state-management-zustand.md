@@ -6,7 +6,9 @@ El README pide elegir un state manager entre Redux, Redux Toolkit o Zustand. El 
 
 ## Decisión
 
-**Zustand**, con stores pequeños y separados por dominio dentro del Shell: `useAuthStore`, `useThemeStore`, `useToastStore`. MF1 y MF2 no necesitan su propio store global — su estado es local a los componentes o vive en TanStack Query / localStorage.
+**Zustand**, con stores pequeños y separados por dominio dentro del Shell: `useAuthStore`, `useThemeStore`. MF1 y MF2 no necesitan su propio store global — su estado es local a los componentes o vive en TanStack Query / localStorage.
+
+> **Actualización (implementación, Fase 1):** el `useToastStore` previsto originalmente no se necesitó. Al adoptar shadcn/ui ([`adr/012`](./012-ui-components-shadcn.md)) para el toast se usa **Sonner**, que mantiene su propia cola de notificaciones internamente — se invoca imperativamente (`toast(...)`) desde donde haga falta, sin necesidad de un store propio para esa parte del estado.
 
 ## Alternativas consideradas
 

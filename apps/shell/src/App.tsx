@@ -1,28 +1,43 @@
 import { lazy } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import RemoteBoundary from './RemoteBoundary';
+import AppLayout from './layout/AppLayout';
+import ProtectedRoute from './routes/ProtectedRoute';
+import LoginPage from './pages/LoginPage';
+import HomePage from './pages/HomePage';
 
 const PokemonDetail = lazy(() => import('mf1Detail/PokemonDetail'));
 const History = lazy(() => import('mf2History/History'));
 
-/**
- * Fase 0: solo valida que el Shell consume ambos remotes vía Module Federation.
- * El ruteo real (React Router, /pokemon/:name, /history) llega en las Fases 1-4.
- */
 function App() {
   return (
-    <main className="min-h-screen bg-surface p-8 text-ink">
-      <h1 className="text-2xl font-bold text-brand-700">Shell — Bootstrap Fase 0</h1>
-      <p className="mt-1 text-sm text-ink-muted">Consumiendo remotes de MF1 y MF2 vía Module Federation.</p>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        <RemoteBoundary label="mf1Detail/PokemonDetail">
-          <PokemonDetail />
-        </RemoteBoundary>
-        <RemoteBoundary label="mf2History/History">
-          <History />
-        </RemoteBoundary>
-      </div>
-    </main>
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/pokemon/:name"
+            element={
+              <RemoteBoundary label="mf1Detail/PokemonDetail">
+                <PokemonDetail />
+              </RemoteBoundary>
+            }
+          />
+          <Route
+            path="/history"
+            element={
+              <RemoteBoundary label="mf2History/History">
+                <History />
+              </RemoteBoundary>
+            }
+          />
+        </Route>
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 

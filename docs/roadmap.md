@@ -18,12 +18,13 @@ Dimensionado para el límite de **2 días calendario**. Cada fase tiene un check
 
 ### Fase 1 — Shell: core
 
-- [ ] Login mock (cualquier credencial válida o credenciales fijas documentadas) — sesión en `localStorage`/`sessionStorage`.
-- [ ] Rutas protegidas (redirect a login si no hay sesión).
-- [ ] Layout general + navegación + dropdown de usuario con "Cerrar sesión".
-- [ ] Store Zustand `auth` (sesión) y `theme` (claro/oscuro, persistido).
-- [ ] Toggle de tema funcional end-to-end (se ve reflejado también si se navega a MF1/MF2).
-- [ ] Home: fetch de tipos vía `GET /type/{type}`, 10 Pokémon por categoría, loading/error states.
+- [x] Login mock (credenciales fijas `demo@acity.dev` / `demo1234`, mostradas como hint) — sesión persistida vía Zustand `persist` en `localStorage`.
+- [x] Rutas protegidas (`ProtectedRoute` + React Router, redirect a `/login` con `state.from` si no hay sesión).
+- [x] Layout general + navegación (Home/Historial) + dropdown de usuario (shadcn) con "Cerrar sesión".
+- [x] Store Zustand `auth` (sesión) y `theme` (claro/oscuro, delega persistencia a `@acity/shared`).
+- [x] Toggle de tema funcional end-to-end — verificado con Playwright, dark mode persiste tras logout (independiente de la sesión).
+- [x] Home: 18 filas horizontales por tipo (`docs/adr/011`), `GET /type/{type}` vía TanStack Query, 10 Pokémon por categoría, imágenes derivadas del id sin fetch extra, loading/error por fila.
+- [x] shadcn/ui inicializado en el Shell (`docs/adr/012`): dropdown-menu, dialog, sonner, button, input, label, card.
 
 ### Fase 2 — Shell: buscador
 

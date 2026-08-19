@@ -23,7 +23,7 @@ class RemoteErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="rounded-xl border border-red-300 bg-red-50 p-6 text-sm text-red-700">
+        <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-6 text-sm text-destructive">
           No se pudo cargar el remote <strong>{this.props.label}</strong>. ¿Está corriendo su
           servidor de desarrollo?
         </div>
@@ -37,7 +37,7 @@ export default function RemoteBoundary({ label, children }: Props) {
   return (
     <RemoteErrorBoundary label={label}>
       <Suspense
-        fallback={<div className="p-6 text-sm text-ink-muted">Cargando {label}…</div>}
+        fallback={<div className="p-6 text-sm text-muted-foreground">Cargando {label}…</div>}
       >
         {children}
       </Suspense>
