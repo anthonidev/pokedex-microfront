@@ -5,6 +5,12 @@ import tailwindcss from '@tailwindcss/vite';
 import { federation } from '@module-federation/vite';
 import { federationBuildConfig } from '../../vite.shared.config.ts';
 
+// Module Federation needs the remotes' entry URLs at *build* time (this is a static config,
+// not resolved per-request) — falls back to the local dev servers so `pnpm dev` needs zero
+// setup, but a production build (e.g. on Vercel) must set these to the deployed MF1/MF2 URLs.
+const MF1_ENTRY_URL = process.env.VITE_MF1_ENTRY_URL ?? 'http://localhost:3001/remoteEntry.js';
+const MF2_ENTRY_URL = process.env.VITE_MF2_ENTRY_URL ?? 'http://localhost:3002/remoteEntry.js';
+
 export default defineConfig({
   resolve: {
     alias: {
@@ -20,12 +26,12 @@ export default defineConfig({
         mf1Detail: {
           type: 'module',
           name: 'mf1Detail',
-          entry: 'http://localhost:3001/remoteEntry.js',
+          entry: MF1_ENTRY_URL,
         },
         mf2History: {
           type: 'module',
           name: 'mf2History',
-          entry: 'http://localhost:3002/remoteEntry.js',
+          entry: MF2_ENTRY_URL,
         },
       },
       // The `['react', 'react-dom']` shorthand implies `singleton: false`. Tried the

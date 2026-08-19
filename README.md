@@ -137,6 +137,34 @@ Sin duplicados (se busca por `name` y se incrementa `visits` si ya existe), pers
 
 - **Home muestra ~30 Pokémon por categoría con scroll infinito**, no los "10 por categoría" literales del README original. Fue un cambio deliberado (ver [`docs/adr/011`](./docs/adr/011-home-category-rows.md)): la primera versión con 10 en fila generaba scroll horizontal incómodo; se reemplazó por un filtro de tipo + grilla vertical paginada, que da mejor UX sin perder la funcionalidad de "categorías" pedida.
 
-## Estado de testing
+## Testing
 
-Sin cobertura automatizada todavía (`pnpm test` no tiene runner configurado). Si se retoma, la prioridad documentada en el roadmap es: lógica de historial (incremento/dedupe/persistencia), búsqueda exacta por nombre, y lógica de dismiss del toast — la lógica de negocio no trivial del reto, por delante de smoke tests de componentes.
+`pnpm test` corre Vitest + Testing Library en las 4 packages (41 tests): lógica de historial (incremento/dedupe/persistencia/borrado) y de búsqueda exacta/dismiss del toast en `packages/shared`, un test de integración completo de `History` (MF2, sin mocks — es 100% localStorage), smoke tests con fetch mockeado en MF1 y Shell (login, búsqueda exacta end-to-end).
+
+## Deploy
+
+Las 3 apps son builds 100% estáticos de Vite (sin backend propio — el fetch a PokeAPI se hace desde el browser), así que **Vercel** alcanza sin necesidad de Docker ni de un servidor propio.
+
+Punto importante: Module Federation necesita la URL de cada remote **en build time** (`apps/shell/vite.config.ts`), no es algo que se resuelva en runtime. En dev usa `localhost:3001`/`3002` por default; en producción hay que pasarle las URLs reales por variable de entorno:
+
+- `VITE_MF1_ENTRY_URL` → `https://<tu-deploy-de-mf1-detail>.vercel.app/remoteEntry.js`
+- `VITE_MF2_ENTRY_URL` → `https://<tu-deploy-de-mf2-history>.vercel.app/remoteEntry.js`
+
+### Pasos en Vercel
+
+Es un monorepo con 3 apps independientes → **3 proyectos de Vercel separados**, los 3 apuntando al mismo repo de GitHub:
+
+1. **Deployá `mf1-detail` y `mf2-history` primero** (no dependen de nada más):
+   - "Add New Project" → importá el repo → **Root Directory**: `apps/mf1-detail` (y otro proyecto con `apps/mf2-history`).
+   - Framework preset: Vite (autodetectado). Build command / output quedan como están (`vite build` → `dist`).
+   - Guardá la URL que te da Vercel para cada uno (ej. `mf1-detail-xxx.vercel.app`).
+2. **Deployá `shell` al final**, ya con las URLs de los otros dos:
+   - "Add New Project" → mismo repo → **Root Directory**: `apps/shell`.
+   - En Environment Variables del proyecto: `VITE_MF1_ENTRY_URL` y `VITE_MF2_ENTRY_URL` con las URLs del paso 1 + `/remoteEntry.js`.
+   - Deploy.
+
+Cada `vercel.json` (uno por app) ya deja resuelto lo no obvio:
+- `apps/shell/vercel.json`: rewrite de todas las rutas a `/index.html` — sin esto, refrescar en `/pokemon/pikachu` o `/history` da 404 (routing client-side de react-router).
+- `apps/mf1-detail/vercel.json` y `apps/mf2-history/vercel.json`: header `Access-Control-Allow-Origin: *` — sin esto, el Shell (otro origen) no puede cargar el `remoteEntry.js` vía Module Federation.
+
+Si en algún momento se agrega un dominio propio, conviene reemplazar el `*` por el dominio real del Shell en vez de dejarlo abierto a cualquier origen.
