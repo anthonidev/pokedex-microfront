@@ -21,7 +21,11 @@ export default function PokemonDetailPage() {
     <RemoteBoundary
       label="mf1Detail/PokemonDetail"
       loader={() => import('mf1Detail/PokemonDetail')}
-      componentProps={{ name, onNavigate: (nextName: string) => navigate(`/pokemon/${nextName}`) }}
+      componentProps={{
+        name,
+        onNavigate: (nextName: string) =>
+          navigate(`/pokemon/${nextName}`, { viewTransition: true }),
+      }}
     />
   );
 }

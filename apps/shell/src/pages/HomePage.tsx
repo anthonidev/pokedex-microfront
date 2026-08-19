@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { getPokemonByType, getPokemonList, type PokemonListItem } from '@acity/shared';
 import PokemonGridCard from '@/components/PokemonGridCard';
@@ -12,6 +12,13 @@ const GRID_CLASS =
 export default function HomePage() {
   const [filter, setFilter] = useState<TypeFilter>('all');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  // Warms Module Federation's remote-module cache so the *first* card click already has
+  // MF1 loaded — otherwise the view transition (docs/adr/018) would morph into a loading
+  // skeleton instead of the real detail content while the remote's chunk downloads.
+  useEffect(() => {
+    void import('mf1Detail/PokemonDetail');
+  }, []);
 
   const isFiltered = filter !== 'all';
 

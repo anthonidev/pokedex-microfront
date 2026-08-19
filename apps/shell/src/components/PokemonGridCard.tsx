@@ -38,6 +38,7 @@ export default function PokemonGridCard({ item, onClick }: PokemonGridCardProps)
       <Link
         to={`/pokemon/${pokemon.name}`}
         onClick={onClick}
+        viewTransition
         className="relative flex h-full w-full flex-col overflow-hidden rounded-2xl p-3 text-white shadow-md"
         style={{ backgroundImage: getPokemonTypeGradient(primaryType) }}
       >
@@ -51,6 +52,11 @@ export default function PokemonGridCard({ item, onClick }: PokemonGridCardProps)
               src={artwork}
               alt={pokemon.name}
               loading="lazy"
+              // Matches the `viewTransitionName` on the detail page's hero image for this same
+              // Pokémon — the browser morphs position/size between the two automatically. See
+              // docs/adr/018. Keyed by name (not a fixed value) since every card in the grid
+              // needs a distinct name while they're all visible together.
+              style={{ viewTransitionName: `pokemon-artwork-${pokemon.name}` }}
               className="size-24 object-contain drop-shadow-lg sm:size-28"
             />
           )}
