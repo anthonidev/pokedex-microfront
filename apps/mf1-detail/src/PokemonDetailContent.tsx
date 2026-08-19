@@ -88,58 +88,58 @@ export default function PokemonDetailContent({ name, onNavigate }: PokemonDetail
   const flavorText = speciesQuery.data ? getFlavorText(speciesQuery.data) : '';
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 lg:flex-row lg:items-start">
-      {/* Hero card: full-bleed "phone card" on mobile, self-contained sticky card on desktop.
-          Same markup both ways — only paddings/margins/rounding change per breakpoint. */}
-      <div className="lg:sticky lg:top-20 lg:w-96 lg:shrink-0">
-        <div
-          className="relative flex flex-col items-center gap-3 rounded-b-[2.5rem] px-6 pt-6 pb-24 text-white lg:rounded-[2rem] lg:pb-6"
-          style={{ backgroundImage: getPokemonTypeGradient(primaryType) }}
-        >
-          <div className="flex w-full items-center justify-between">
-            <NavButton
-              direction="prev"
-              disabled={!onNavigate || pokemon.id <= 1}
-              onClick={() => onNavigate?.(String(pokemon.id - 1))}
-            />
-            <span className="rounded-full bg-black/20 px-3 py-1 text-sm font-semibold tabular-nums backdrop-blur-sm">
-              #{String(pokemon.id).padStart(3, '0')}
-            </span>
-            <NavButton
-              direction="next"
-              disabled={!onNavigate}
-              onClick={() => onNavigate?.(String(pokemon.id + 1))}
-            />
-          </div>
-
-          <h1 className="font-heading text-2xl font-bold capitalize">{pokemon.name}</h1>
-          <div className="flex gap-2">
-            {pokemon.types.map(({ type }) => (
-              <span
-                key={type.name}
-                className="rounded-full bg-black/20 px-3 py-1 text-xs font-semibold capitalize backdrop-blur-sm"
-              >
-                {type.name}
-              </span>
-            ))}
-          </div>
+    <div className="mx-auto flex w-full max-w-5xl flex-col">
+      {/* Hero: full-bleed "phone card" on mobile, wide banner on desktop — the artwork is the
+          centerpiece either way, just a lot bigger and further out of the frame on desktop
+          (see docs/adr/019). Same markup both breakpoints, only sizing/spacing changes. */}
+      <div
+        className="relative flex flex-col items-center gap-3 rounded-b-[2.5rem] px-6 pt-6 pb-24 text-white lg:rounded-[2rem] lg:px-12 lg:pt-10 lg:pb-40"
+        style={{ backgroundImage: getPokemonTypeGradient(primaryType) }}
+      >
+        <div className="flex w-full items-center justify-between">
+          <NavButton
+            direction="prev"
+            disabled={!onNavigate || pokemon.id <= 1}
+            onClick={() => onNavigate?.(String(pokemon.id - 1))}
+          />
+          <span className="rounded-full bg-black/20 px-3 py-1 text-sm font-semibold tabular-nums backdrop-blur-sm">
+            #{String(pokemon.id).padStart(3, '0')}
+          </span>
+          <NavButton
+            direction="next"
+            disabled={!onNavigate}
+            onClick={() => onNavigate?.(String(pokemon.id + 1))}
+          />
         </div>
 
-        {artwork && (
-          <img
-            src={artwork}
-            alt={pokemon.name}
-            // Matches the `viewTransitionName` on the grid card for this same Pokémon — the
-            // browser morphs position/size between the two automatically. See docs/adr/018.
-            style={{ viewTransitionName: `pokemon-artwork-${pokemon.name}` }}
-            className="relative z-10 mx-auto -mt-24 size-40 object-contain drop-shadow-xl lg:mt-0 lg:mb-6 lg:size-48"
-          />
-        )}
+        <h1 className="font-heading text-2xl font-bold capitalize lg:text-4xl">{pokemon.name}</h1>
+        <div className="flex gap-2">
+          {pokemon.types.map(({ type }) => (
+            <span
+              key={type.name}
+              className="rounded-full bg-black/20 px-3 py-1 text-xs font-semibold capitalize backdrop-blur-sm"
+            >
+              {type.name}
+            </span>
+          ))}
+        </div>
       </div>
 
-      <div className="-mt-4 flex min-w-0 flex-1 flex-col gap-4 px-6 pb-6 text-foreground lg:mt-0 lg:px-0">
+      {artwork && (
+        <img
+          src={artwork}
+          alt={pokemon.name}
+          // Matches the `viewTransitionName` on the grid card for this same Pokémon — the
+          // browser morphs position/size between the two automatically. See docs/adr/018.
+          style={{ viewTransitionName: `pokemon-artwork-${pokemon.name}` }}
+          className="relative z-10 mx-auto -mt-24 size-40 object-contain drop-shadow-xl lg:-mt-40 lg:size-64"
+        />
+      )}
+
+      <div className="-mt-4 flex flex-col gap-4 px-6 pb-6 text-foreground lg:mt-4 lg:px-0">
         {/* Tabs only make sense where vertical/horizontal space is scarce — desktop shows every
-            section at once instead (see docs/adr/019). */}
+            section at once instead, arranged in a grid so nothing sits alone in a mostly-empty
+            card (see docs/adr/019). */}
         <div className="flex gap-1 rounded-full bg-muted p-1 lg:hidden">
           <TabButton active={tab === 'info'} onClick={() => setTab('info')}>
             Info
@@ -152,75 +152,77 @@ export default function PokemonDetailContent({ name, onNavigate }: PokemonDetail
           </TabButton>
         </div>
 
-        <div className={`${tab === 'info' ? 'flex' : 'hidden'} flex-col gap-4 lg:flex`}>
-          <Section title="Descripción">
-            {flavorText && <p className="text-sm text-muted-foreground">{flavorText}</p>}
-            <div className="grid grid-cols-2 gap-3 text-center">
-              <div className="rounded-xl bg-muted p-3">
-                <p className="text-xs text-muted-foreground">Altura</p>
-                <p className="font-semibold">{(pokemon.height / 10).toFixed(1)} m</p>
-              </div>
-              <div className="rounded-xl bg-muted p-3">
-                <p className="text-xs text-muted-foreground">Peso</p>
-                <p className="font-semibold">{(pokemon.weight / 10).toFixed(1)} kg</p>
-              </div>
-            </div>
-            {strongAgainst.length > 0 && (
-              <div>
-                <p className="mb-2 text-xs font-medium text-muted-foreground">Fuerte contra</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {strongAgainst.map((typeName) => (
-                    <span
-                      key={typeName}
-                      style={{ backgroundColor: getPokemonTypeColor(typeName) }}
-                      className="rounded-full px-2.5 py-1 text-xs font-medium text-white capitalize"
-                    >
-                      {typeName}
-                    </span>
-                  ))}
+        <div className="lg:grid lg:grid-cols-3 lg:gap-4">
+          <div className={`${tab === 'info' ? 'flex' : 'hidden'} flex-col gap-4 lg:col-span-2 lg:flex`}>
+            <Section title="Descripción">
+              {flavorText && <p className="text-sm text-muted-foreground">{flavorText}</p>}
+              <div className="grid grid-cols-2 gap-3 text-center">
+                <div className="rounded-xl bg-muted p-3">
+                  <p className="text-xs text-muted-foreground">Altura</p>
+                  <p className="font-semibold">{(pokemon.height / 10).toFixed(1)} m</p>
+                </div>
+                <div className="rounded-xl bg-muted p-3">
+                  <p className="text-xs text-muted-foreground">Peso</p>
+                  <p className="font-semibold">{(pokemon.weight / 10).toFixed(1)} kg</p>
                 </div>
               </div>
-            )}
-          </Section>
-        </div>
-
-        <div className={`${tab === 'stats' ? 'flex' : 'hidden'} flex-col gap-2 lg:flex`}>
-          <Section title="Estadísticas">
-            {pokemon.stats.map((stat) => (
-              <div key={stat.stat.name} className="flex items-center gap-3">
-                <span className="w-28 shrink-0 text-xs font-medium text-muted-foreground capitalize">
-                  {stat.stat.name.replace('-', ' ')}
-                </span>
-                <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-primary"
-                    style={{ width: `${Math.min(100, (stat.base_stat / 255) * 100)}%` }}
-                  />
+              {strongAgainst.length > 0 && (
+                <div>
+                  <p className="mb-2 text-xs font-medium text-muted-foreground">Fuerte contra</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {strongAgainst.map((typeName) => (
+                      <span
+                        key={typeName}
+                        style={{ backgroundColor: getPokemonTypeColor(typeName) }}
+                        className="rounded-full px-2.5 py-1 text-xs font-medium text-white capitalize"
+                      >
+                        {typeName}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <span className="w-8 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
-                  {stat.base_stat}
-                </span>
-              </div>
-            ))}
-          </Section>
-        </div>
-
-        <div className={`${tab === 'moves' ? 'flex' : 'hidden'} flex-col gap-2 lg:flex`}>
-          <Section title="Movimientos">
-            <div className="flex flex-wrap gap-1.5">
-              {pokemon.moves.slice(0, 15).map(({ move }) => (
-                <span
-                  key={move.name}
-                  className="rounded-full border border-border bg-card px-2.5 py-1 text-xs capitalize"
-                >
-                  {move.name.replace(/-/g, ' ')}
-                </span>
-              ))}
-              {pokemon.moves.length === 0 && (
-                <p className="text-sm text-muted-foreground">Sin movimientos registrados.</p>
               )}
-            </div>
-          </Section>
+            </Section>
+          </div>
+
+          <div className={`${tab === 'stats' ? 'flex' : 'hidden'} flex-col gap-2 lg:col-span-1 lg:flex`}>
+            <Section title="Estadísticas">
+              {pokemon.stats.map((stat) => (
+                <div key={stat.stat.name} className="flex items-center gap-3">
+                  <span className="w-28 shrink-0 text-xs font-medium text-muted-foreground capitalize">
+                    {stat.stat.name.replace('-', ' ')}
+                  </span>
+                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-primary"
+                      style={{ width: `${Math.min(100, (stat.base_stat / 255) * 100)}%` }}
+                    />
+                  </div>
+                  <span className="w-8 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+                    {stat.base_stat}
+                  </span>
+                </div>
+              ))}
+            </Section>
+          </div>
+
+          <div className={`${tab === 'moves' ? 'flex' : 'hidden'} flex-col gap-2 lg:col-span-3 lg:flex`}>
+            <Section title="Movimientos">
+              <div className="flex flex-wrap gap-1.5">
+                {pokemon.moves.slice(0, 15).map(({ move }) => (
+                  <span
+                    key={move.name}
+                    className="rounded-full border border-border bg-card px-2.5 py-1 text-xs capitalize"
+                  >
+                    {move.name.replace(/-/g, ' ')}
+                  </span>
+                ))}
+                {pokemon.moves.length === 0 && (
+                  <p className="text-sm text-muted-foreground">Sin movimientos registrados.</p>
+                )}
+              </div>
+            </Section>
+          </div>
         </div>
       </div>
     </div>
@@ -229,7 +231,7 @@ export default function PokemonDetailContent({ name, onNavigate }: PokemonDetail
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="flex w-full flex-col gap-4 rounded-2xl border border-transparent p-0 lg:border-border lg:bg-card lg:p-5">
+    <div className="flex h-full w-full flex-col gap-4 rounded-2xl border border-transparent p-0 lg:border-border lg:bg-card lg:p-5">
       <h2 className="hidden font-heading text-sm font-bold tracking-tight text-foreground lg:block">
         {title}
       </h2>
