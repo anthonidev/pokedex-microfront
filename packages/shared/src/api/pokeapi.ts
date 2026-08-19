@@ -24,6 +24,16 @@ export function getPokemonList(limit: number, offset: number): Promise<PokemonLi
   return fetchJson<PokemonListResponse>(`${BASE_URL}/pokemon?limit=${limit}&offset=${offset}`);
 }
 
+/**
+ * Every Pokémon name in one request (PokeAPI returns everything when `limit` exceeds the
+ * total, so this isn't real pagination). Fetched once and cached indefinitely — used for
+ * client-side typeahead suggestions in the search modal, not as a replacement for the
+ * exact-match lookup the README requires (see `getPokemonByName`).
+ */
+export function getAllPokemonNames(): Promise<PokemonListResponse> {
+  return fetchJson<PokemonListResponse>(`${BASE_URL}/pokemon?limit=100000&offset=0`);
+}
+
 /** Exact-match lookup by lowercase name — no fragment/fuzzy search (see docs/00-overview.md). */
 export function getPokemonByName(name: string): Promise<Pokemon> {
   return fetchJson<Pokemon>(`${BASE_URL}/pokemon/${name.toLowerCase()}`);
@@ -63,19 +73,4 @@ export function getPokemonArtwork(pokemon: Pokemon): string {
     pokemon.sprites.front_default ??
     ''
   );
-}
-
-/**
- * `/type/{type}` and `/pokemon?limit=&offset=` only return `{ name, url }`, not sprites.
- * The numeric id is embedded in the url (".../pokemon/6/"), so we can derive the
- * official-artwork image directly from the static sprites CDN without an extra request —
- * used by the search modal's browse grid, which doesn't need per-card type data.
- */
-export function getPokemonIdFromUrl(url: string): number {
-  const match = /\/pokemon\/(\d+)\/?$/.exec(url);
-  return match ? Number(match[1]) : 0;
-}
-
-export function getArtworkUrlById(id: number): string {
-  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
 }

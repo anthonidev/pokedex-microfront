@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Search } from 'lucide-react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -7,6 +7,7 @@ import SearchModal from '@/components/SearchModal';
 import ThemeToggle from '@/components/ThemeToggle';
 import UserMenu from '@/components/UserMenu';
 import VisitToastListener from '@/components/VisitToastListener';
+import { useSearchShortcut } from '@/hooks/use-search-shortcut';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   cn(
@@ -14,8 +15,12 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     isActive ? 'bg-muted text-foreground' : 'text-muted-foreground',
   );
 
+const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
+
 export default function AppLayout() {
   const [searchOpen, setSearchOpen] = useState(false);
+
+  useSearchShortcut(useCallback(() => setSearchOpen(true), []));
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -34,12 +39,17 @@ export default function AppLayout() {
           </div>
           <div className="flex items-center gap-2">
             <Button
-              variant="ghost"
-              size="icon"
+              variant="outline"
+              size="sm"
               aria-label="Buscar Pokémon"
               onClick={() => setSearchOpen(true)}
+              className="gap-2 text-muted-foreground"
             >
               <Search className="size-4" />
+              <span className="hidden sm:inline">Buscar</span>
+              <kbd className="hidden items-center gap-0.5 rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium sm:flex">
+                {isMac ? '⌘' : 'Ctrl'}K
+              </kbd>
             </Button>
             <ThemeToggle />
             <UserMenu />
